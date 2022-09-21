@@ -10,6 +10,7 @@
     "Other"
   ],
   "activationEvents": [
+    "*",
     "onCommand:documatic.helloWorld"
   ],
   "main": "./dist/extension.js",
@@ -17,7 +18,31 @@
     "commands": [
       {
         "command": "documatic.helloWorld",
-        "title": "Hello World"
+        "title": "Hello World",
+        "category": "Documatic"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "documatic",
+          "title": "Documatic",
+          "icon": "src/assets/img/symbol.svg"
+        }
+      ]
+    },
+    "views": {
+      "documatic": [
+        {
+          "id": "documatic.login",
+          "name": "Login"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "documatic.login",
+        "contents": "You have not yet signed in with Documatic\n[Sign in](command:documatic.helloWorld)" 
       }
     ]
   },
