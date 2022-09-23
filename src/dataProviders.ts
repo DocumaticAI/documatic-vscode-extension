@@ -6,7 +6,7 @@ import {
   TreeItem,
   TreeItemCollapsibleState,
 } from "vscode";
-import { globalContext } from "./extension";
+import { globalAxios, globalContext } from "./extension";
 
 class Dependency extends TreeItem {
   constructor(
@@ -21,6 +21,7 @@ class Dependency extends TreeItem {
 }
 
 class Project extends TreeItem {
+  objId: number;
   constructor(
     id: number,
     title: string,
@@ -29,6 +30,7 @@ class Project extends TreeItem {
     public readonly collapsibleState: TreeItemCollapsibleState
   ) {
     super(title, collapsibleState);
+    this.objId = id
     this.tooltip = description;
     this.description = owner;
     this.iconPath = new ThemeIcon("repo")
@@ -53,16 +55,57 @@ type ProfileType = {
 };
 
 class Organisation extends TreeItem {
+  objId: string;
   constructor(
     id: string,
     name: string,
     public readonly collapsibleState: TreeItemCollapsibleState
   ) {
     super(name, collapsibleState);
-    this.id = id;
+    this.objId = id;
     this.tooltip = name;
-    this.iconPath = new ThemeIcon("organization")
+    this.iconPath = new ThemeIcon("organization");
   }
+}
+
+interface RecursiveItem {
+  [key: string]: RecursiveItem | Array<string>;
+}
+
+class FolderItem extends TreeItem {
+  tree: RecursiveItem;
+  constructor(
+    name: string, 
+    tree: RecursiveItem,
+    public readonly collapsibleState: TreeItemCollapsibleState
+    ) {
+      super(name, collapsibleState);
+      this.tree = tree;
+      this.iconPath = ThemeIcon.Folder;
+    }
+}
+
+class FileItem extends TreeItem {
+  childObjects: string[];
+  constructor(
+    name: string, 
+    childObjects: string[],
+    public readonly collapsibleState: TreeItemCollapsibleState
+    ) {
+      super(name, collapsibleState);
+      this.childObjects = childObjects;
+      this.iconPath = ThemeIcon.File;
+    }
+}
+
+class ObjectItem extends TreeItem {
+  constructor(
+    name: string, 
+    public readonly collapsibleState: TreeItemCollapsibleState
+    ) {
+      super(name, collapsibleState);
+      this.iconPath = ThemeIcon.File;
+    }
 }
 
 export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
@@ -133,7 +176,7 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
 }
 
 export class OrganisationsTreeDataProvider
-  implements TreeDataProvider<Organisation>
+  implements TreeDataProvider<Organisation | Project | FolderItem | FileItem | ObjectItem> 
 {
   orgs: any;
   projects: any;
@@ -158,9 +201,31 @@ export class OrganisationsTreeDataProvider
   }
 
   async getChildren(
-    element?: Organisation
-  ): Promise<Organisation[] | Project[] | null | undefined> {
+    element?: Organisation | Project | FolderItem | FileItem | ObjectItem
+  ): Promise<Organisation[] | Project[] | FolderItem[] | FileItem[] | ObjectItem[] | null | undefined> {
     if (element) {
+      
+      if (element instanceof FolderItem) {
+        return Promise.resolve(this.generateTreeFromObjects(element.tree))
+      }
+      
+      else if (element instanceof Project) {
+        let existing_object_list: {[key: number]: { [key: string]: string[] }} | undefined = await globalContext.globalState.get("objects_lists");
+        
+        let objects;
+        if (existing_object_list && existing_object_list[element.objId]) objects = existing_object_list[element.objId];
+        else objects = (await globalAxios.get(`/project/${element.objId}/objects`)).data
+        
+        if (!existing_object_list) 
+          existing_object_list = {}
+        existing_object_list[element.objId] = objects
+
+        await globalContext.globalState.update("objects_lists", existing_object_list)
+        
+        return Promise.resolve(this.generateTreeFromObjects(objects));
+      }
+
+      else if (element instanceof Organisation) {
       if (this.projects) {
         if (element.label === "Myself")
           return Promise.resolve(
@@ -171,11 +236,13 @@ export class OrganisationsTreeDataProvider
             )
           );
         const orgProjects = this.projects?.filter(
-          (p: ProjectDataType) => p.organisationId === Number(element.id)
+          (p: ProjectDataType) => p.organisationId === Number(element.objId)
         );
         if (orgProjects)
           return Promise.resolve(this.getProjectsListFromProjects(orgProjects));
       }
+    }
+
       return Promise.resolve([]);
     } else {
       return Promise.resolve([
@@ -222,8 +289,45 @@ export class OrganisationsTreeDataProvider
             ? this.orgs?.find((o: { id: number }) => o.id == j.organisationId)
                 ?.name ?? "Different Organisation"
             : "Different Organisation",
-          TreeItemCollapsibleState.None
+          TreeItemCollapsibleState.Collapsed
         )
     );
   }
+
+  generateTreeFromObjects(objects: {[key:string]: string[] | RecursiveItem}) {
+    const fileNames = Object.keys(objects);
+    const treeStructure: any = {};
+    fileNames.map(f => { f.split("/").reduce((r,e) => r[e] || (r[e] = f.endsWith(e) ? objects[f] : {}), treeStructure) });
+
+    const treekeys = Object.keys(treeStructure);
+    return treekeys.map(treekey => {
+      if (Array.isArray(treeStructure[treekey]))
+        return new FileItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed)
+      else return new FolderItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed)
+    })
+    
+  }
+
+  generateTreeFromRecursiveTree(recursiveTree: RecursiveItem) {
+    const treekeys = Object.keys(recursiveTree);
+
+    treekeys.map(treekey => {
+      const currentVal = recursiveTree[treekey];
+      if (isStringArray(currentVal))
+        return new FileItem(treekey, currentVal, TreeItemCollapsibleState.Collapsed)
+      else return new FolderItem(treekey, currentVal, TreeItemCollapsibleState.Collapsed)
+    })
+  }
+}
+
+function isStringArray(value: any): value is string[] {
+  if (value instanceof Array) {
+    for (const item of value) {
+      if (typeof item !== 'string') {
+        return false
+      }
+    }
+    return true
+  }
+  return false
 }

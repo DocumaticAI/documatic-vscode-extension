@@ -1,11 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { OrganisationsTreeDataProvider, ProjectsTreeDataProvider } from './dataProviders';
 
 export let globalContext: vscode.ExtensionContext;
-
+export let globalAxios: AxiosInstance;
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -62,7 +62,7 @@ let loginUriHandler = {
 }
 
 let getDocumaticData = async () => {
-	const customAxios = axios.create({
+	globalAxios = axios.create({
 		baseURL: "http://localhost:8180/",
 		headers: {
 			"Authorization": `Bearer ${await globalContext.secrets.get("token")}`
@@ -70,9 +70,9 @@ let getDocumaticData = async () => {
 	})
 	try {
 		await Promise.all([
-			globalContext.globalState.update("profile", (await customAxios.get("/profile")).data),
-			globalContext.globalState.update("projects", (await customAxios.get("/project")).data),
-			globalContext.globalState.update("organisations", (await customAxios.get("/organisation")).data)
+			globalContext.globalState.update("profile", (await globalAxios.get("/profile")).data),
+			globalContext.globalState.update("projects", (await globalAxios.get("/project")).data),
+			globalContext.globalState.update("organisations", (await globalAxios.get("/organisation")).data)
 		])
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true)
 		
