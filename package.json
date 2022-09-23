@@ -28,6 +28,12 @@
         "command": "documatic.login",
         "title": "Login",
         "category": "Documatic"
+      },
+      {
+        "command": "documatic.refreshDocumaticInfoFromStore",
+        "title": "Refresh",
+        "category": "Documatic",
+        "icon": "$(extensions-refresh)"
       }
     ],
     "viewsContainers": {
@@ -63,7 +69,16 @@
         "view": "documatic:login",
         "contents": "You have not yet signed in with Documatic\n[Sign in](command:documatic.login)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "documatic.refreshDocumaticInfoFromStore",
+          "when": "view =~ /^documatic/",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
