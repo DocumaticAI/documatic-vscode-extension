@@ -104,7 +104,7 @@ class ObjectItem extends TreeItem {
     public readonly collapsibleState: TreeItemCollapsibleState
     ) {
       super(name, collapsibleState);
-      this.iconPath = ThemeIcon.File;
+      this.iconPath = new ThemeIcon("symbol-object");
     }
 }
 
@@ -208,6 +208,10 @@ export class OrganisationsTreeDataProvider
       if (element instanceof FolderItem) {
         return Promise.resolve(this.generateTreeFromObjects(element.tree))
       }
+
+      else if (element instanceof FileItem) {
+        return Promise.resolve(this.getListfromObjects(element.childObjects));
+      }
       
       else if (element instanceof Project) {
         let existing_object_list: {[key: number]: { [key: string]: string[] }} | undefined = await globalContext.globalState.get("objects_lists");
@@ -308,5 +312,8 @@ export class OrganisationsTreeDataProvider
     
   }
 
+  getListfromObjects(objects: string[]) {
+    return objects.map(obj => new ObjectItem(obj, TreeItemCollapsibleState.None))
+  }
 }
 
