@@ -300,7 +300,7 @@ export class OrganisationsTreeDataProvider
     fileNames.map(f => { f.split("/").reduce((r,e) => r[e] || (r[e] = f.endsWith(e) ? objects[f] : {}), treeStructure) });
 
     const treekeys = Object.keys(treeStructure);
-    return treekeys.map(treekey => {
+    return treekeys.sort().map(treekey => {
       if (Array.isArray(treeStructure[treekey]))
         return new FileItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed)
       else return new FolderItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed)
