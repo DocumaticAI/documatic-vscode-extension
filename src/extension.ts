@@ -49,18 +49,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 let loginUriHandler = {
 	handleUri(uri:vscode.Uri) {
-		console.log("12344 ### got the URI", uri)
-		vscode.window.showInformationMessage(`got the URI ${uri.toString()}`)
+		vscode.window.showInformationMessage(`Recieved the URL from the browser`)
 		const searchParams = new URLSearchParams(uri.query)
 		const tokenB64 = searchParams.get("token");
-		console.log("#### just after getting the token")
 		if (tokenB64) {
 			const token = decodeURIComponent(Buffer.from(tokenB64, "base64").toString("ascii"))
-			console.log("#### just before storing the token")
-			vscode.window.showInformationMessage(`token is ${token}`)
 			globalContext.secrets.store("token", token).then(() => {
-
-				console.log("#### just after saving the token")
 				getDocumaticData()
 			});
 		}
@@ -68,27 +62,22 @@ let loginUriHandler = {
 }
 
 let getDocumaticData = async () => {
-	console.log("#### just before creating custom axios instance")
-	console.log("$$$$ the token is", await globalContext.secrets.get("token"))
 	const customAxios = axios.create({
 		baseURL: "http://localhost:8180/",
 		headers: {
 			"Authorization": `Bearer ${await globalContext.secrets.get("token")}`
 		}
 	})
-	console.log("#### just after creating custom axios instance")
 	try {
 		await Promise.all([
 			globalContext.globalState.update("profile", (await customAxios.get("/profile")).data),
 			globalContext.globalState.update("projects", (await customAxios.get("/project")).data),
 			globalContext.globalState.update("organisations", (await customAxios.get("/organisation")).data)
 		])
-		console.log("#### promises are fulfilled")
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true)
 		
 	} catch (error) {
 		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again")
-		console.log(error)
 		globalContext.secrets.delete("token")
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false)
 	}

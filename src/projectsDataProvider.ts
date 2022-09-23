@@ -48,7 +48,7 @@ type OrganisationDataType = {
 
 type ProfileType = {
   id: string;
-}
+};
 
 class Organisation extends TreeItem {
   constructor(
@@ -76,7 +76,8 @@ export class ProjectsDataProvider implements TreeDataProvider<Project> {
     const orgs: { id: number; name: string }[] | undefined =
       await globalContext.globalState.get("organisations");
     this.orgs = orgs;
-    const projects: ProjectDataType[] | undefined = await globalContext.globalState.get("projects");
+    const projects: ProjectDataType[] | undefined =
+      await globalContext.globalState.get("projects");
     this.projects = projects;
   }
 
@@ -119,13 +120,12 @@ export class ProjectsDataProvider implements TreeDataProvider<Project> {
               ? "Myself"
               : j.userId
             : j.organisationId
-            ? this.orgs?.find(
-                (o: { id: number }) => o.id == j.organisationId
-              )?.name ?? "Different Organisation"
+            ? this.orgs?.find((o: { id: number }) => o.id == j.organisationId)
+                ?.name ?? "Different Organisation"
             : "Different Organisation",
           TreeItemCollapsibleState.None
         )
-    )
+    );
   }
 }
 
@@ -145,7 +145,8 @@ export class OrganisationsDataProvider
     const orgs: { id: number; name: string }[] | undefined =
       await globalContext.globalState.get("organisations");
     this.orgs = orgs;
-    const projects: ProjectDataType[] | undefined = await globalContext.globalState.get("projects");
+    const projects: ProjectDataType[] | undefined =
+      await globalContext.globalState.get("projects");
     this.projects = projects;
   }
 
@@ -157,20 +158,23 @@ export class OrganisationsDataProvider
     element?: Organisation
   ): Promise<Organisation[] | Project[] | null | undefined> {
     if (element) {
-      console.log("in element ", element)
       if (this.projects) {
-        console.log("elem id is", JSON.stringify(element), element.id, typeof element.id)
-        if (element.label === "Myself") 
-          return Promise.resolve(this.getProjectsListFromProjects(this.projects.filter((p: ProjectDataType) => p.userId === this.profile.id)))
+        if (element.label === "Myself")
+          return Promise.resolve(
+            this.getProjectsListFromProjects(
+              this.projects.filter(
+                (p: ProjectDataType) => p.userId === this.profile.id
+              )
+            )
+          );
         const orgProjects = this.projects?.filter(
-          (p: ProjectDataType) =>
-              p.organisationId === Number(element.id)
+          (p: ProjectDataType) => p.organisationId === Number(element.id)
         );
-        if (orgProjects) return Promise.resolve(this.getProjectsListFromProjects(orgProjects));
+        if (orgProjects)
+          return Promise.resolve(this.getProjectsListFromProjects(orgProjects));
       }
       return Promise.resolve([]);
     } else {
-      console.log("generating tree data", this.orgs);
       return Promise.resolve([
         new Organisation("0", "Myself", TreeItemCollapsibleState.Collapsed),
         ...this.getListfromOrgs(this.orgs),
@@ -191,7 +195,12 @@ export class OrganisationsDataProvider
   getListfromOrgs(orgs: any[]): Organisation[] {
     if (!orgs) return [];
     return orgs.map(
-      (j) => new Organisation(String(j.id), j.name, TreeItemCollapsibleState.Collapsed)
+      (j) =>
+        new Organisation(
+          String(j.id),
+          j.name,
+          TreeItemCollapsibleState.Collapsed
+        )
     );
   }
 
@@ -207,12 +216,11 @@ export class OrganisationsDataProvider
               ? "Myself"
               : j.userId
             : j.organisationId
-            ? this.orgs?.find(
-                (o: { id: number }) => o.id == j.organisationId
-              )?.name ?? "Different Organisation"
+            ? this.orgs?.find((o: { id: number }) => o.id == j.organisationId)
+                ?.name ?? "Different Organisation"
             : "Different Organisation",
           TreeItemCollapsibleState.None
         )
-    )
+    );
   }
 }
