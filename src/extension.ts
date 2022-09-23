@@ -2,8 +2,9 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import axios from "axios";
+import { OrganisationsDataProvider, ProjectsDataProvider } from './projectsDataProvider';
 
-let globalContext: vscode.ExtensionContext;
+export let globalContext: vscode.ExtensionContext;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -13,6 +14,13 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when the extension is activated
 	console.log('Congratulations, the extension "documatic" is now active!');
+
+
+	const orgDataProvider = new OrganisationsDataProvider();
+	const projectDataProvider = new ProjectsDataProvider();
+	vscode.window.registerTreeDataProvider('documatic:home', projectDataProvider);
+	vscode.window.registerTreeDataProvider('documatic:home_organisations', orgDataProvider);
+
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -27,6 +35,10 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showInformationMessage('Opening Documatic in your browser!');
 			// vscode.env.openExternal(vscode.Uri.parse("https://app.documatic.com/vscode/login"))
 			vscode.env.openExternal(vscode.Uri.parse("http://localhost:3000/vscode/login"))
+		}),
+		vscode.commands.registerCommand('documatic.refreshDocumaticInfoFromStore', () => {
+			projectDataProvider.refresh();
+			orgDataProvider.refresh();
 		}),
 		vscode.window.registerUriHandler(loginUriHandler),
 		// new DocumaticAuthenticationProvider(context)
@@ -76,6 +88,7 @@ let getDocumaticData = async () => {
 		
 	} catch (error) {
 		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again")
+		console.log(error)
 		globalContext.secrets.delete("token")
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false)
 	}

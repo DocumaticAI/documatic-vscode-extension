@@ -49,7 +49,12 @@
         {
           "id": "documatic:home",
           "when": "documatic.isLoggedIn",
-          "name": "Home"
+          "name": "Projects"
+        },
+        {
+          "id": "documatic:home_organisations",
+          "when": "documatic.isLoggedIn",
+          "name": "Organisations"
         }
       ]
     },
@@ -57,10 +62,6 @@
       {
         "view": "documatic:login",
         "contents": "You have not yet signed in with Documatic\n[Sign in](command:documatic.login)"
-      },
-      {
-        "view": "documatic:home",
-        "contents": "You have Logged in. Yay!!"
       }
     ]
   },
