@@ -246,7 +246,7 @@ export class OrganisationsTreeDataProvider
       return Promise.resolve([]);
     } else {
       return Promise.resolve([
-        new Organisation("0", "Myself", TreeItemCollapsibleState.Collapsed),
+        new Organisation("0", "Myself", TreeItemCollapsibleState.Expanded),
         ...this.getListfromOrgs(this.orgs),
       ]);
     }
@@ -269,7 +269,7 @@ export class OrganisationsTreeDataProvider
         new Organisation(
           String(j.id),
           j.name,
-          TreeItemCollapsibleState.Collapsed
+          TreeItemCollapsibleState.Expanded
         )
     );
   }
