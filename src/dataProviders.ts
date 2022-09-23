@@ -308,26 +308,5 @@ export class OrganisationsTreeDataProvider
     
   }
 
-  generateTreeFromRecursiveTree(recursiveTree: RecursiveItem) {
-    const treekeys = Object.keys(recursiveTree);
-
-    treekeys.map(treekey => {
-      const currentVal = recursiveTree[treekey];
-      if (isStringArray(currentVal))
-        return new FileItem(treekey, currentVal, TreeItemCollapsibleState.Collapsed)
-      else return new FolderItem(treekey, currentVal, TreeItemCollapsibleState.Collapsed)
-    })
-  }
 }
 
-function isStringArray(value: any): value is string[] {
-  if (value instanceof Array) {
-    for (const item of value) {
-      if (typeof item !== 'string') {
-        return false
-      }
-    }
-    return true
-  }
-  return false
-}
