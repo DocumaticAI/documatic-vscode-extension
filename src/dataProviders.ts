@@ -1,6 +1,7 @@
 import {
   Event,
   EventEmitter,
+  ThemeIcon,
   TreeDataProvider,
   TreeItem,
   TreeItemCollapsibleState,
@@ -30,6 +31,7 @@ class Project extends TreeItem {
     super(title, collapsibleState);
     this.tooltip = description;
     this.description = owner;
+    this.iconPath = new ThemeIcon("repo")
   }
 }
 
@@ -59,6 +61,7 @@ class Organisation extends TreeItem {
     super(name, collapsibleState);
     this.id = id;
     this.tooltip = name;
+    this.iconPath = new ThemeIcon("organization")
   }
 }
 
