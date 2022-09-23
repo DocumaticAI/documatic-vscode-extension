@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import axios from "axios";
-import { OrganisationsDataProvider, ProjectsDataProvider } from './projectsDataProvider';
+import { OrganisationsTreeDataProvider, ProjectsTreeDataProvider } from './dataProviders';
 
 export let globalContext: vscode.ExtensionContext;
 
@@ -16,8 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, the extension "documatic" is now active!');
 
 
-	const orgDataProvider = new OrganisationsDataProvider();
-	const projectDataProvider = new ProjectsDataProvider();
+	const orgDataProvider = new OrganisationsTreeDataProvider();
+	const projectDataProvider = new ProjectsTreeDataProvider();
 	vscode.window.registerTreeDataProvider('documatic:home', projectDataProvider);
 	vscode.window.registerTreeDataProvider('documatic:home_organisations', orgDataProvider);
 

@@ -62,7 +62,7 @@ class Organisation extends TreeItem {
   }
 }
 
-export class ProjectsDataProvider implements TreeDataProvider<Project> {
+export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
   orgs: any;
   projects: any;
   profile: any;
@@ -129,7 +129,7 @@ export class ProjectsDataProvider implements TreeDataProvider<Project> {
   }
 }
 
-export class OrganisationsDataProvider
+export class OrganisationsTreeDataProvider
   implements TreeDataProvider<Organisation>
 {
   orgs: any;
