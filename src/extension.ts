@@ -21,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('documatic:home', projectDataProvider);
 	vscode.window.registerTreeDataProvider('documatic:home_organisations', orgDataProvider);
 
+	getDocumaticData();
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -62,10 +63,15 @@ let loginUriHandler = {
 }
 
 let getDocumaticData = async () => {
+	const token = await globalContext.secrets.get("token");
+	if (!token) {
+		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false)
+		return;
+	}
 	globalAxios = axios.create({
 		baseURL: "http://localhost:8180/",
 		headers: {
-			"Authorization": `Bearer ${await globalContext.secrets.get("token")}`
+			"Authorization": `Bearer ${token}`
 		}
 	})
 	try {
