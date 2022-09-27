@@ -98,7 +98,8 @@ export class ResultsOverviewPanel extends WebviewBase {
         <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}'; style-src vscode-resource: 'unsafe-inline' http: https: data:;">
+                <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource} 'unsafe-inline' http: https: data:;"> -->
+                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource};">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Search so and so on Documatic</title>
 
@@ -106,12 +107,6 @@ export class ResultsOverviewPanel extends WebviewBase {
 				<link href="${codiconsUri}" rel="stylesheet" />
             </head>
             <body class="${process.platform}">
-            <div class="icon"><i class="codicon codicon-account"></i> account</div>
-            <div class="icon"><i class="codicon codicon-activate-breakpoints"></i> activate-breakpoints</div>
-            <div class="icon"><i class="codicon codicon-add"></i> add</div>
-            <div class="icon"><i class="codicon codicon-archive"></i> archive</div>
-            <div class="icon"><i class="codicon codicon-arrow-both"></i> arrow-both</div>
-            <div class="icon"><i class="codicon codicon-arrow-down"></i> arrow-down</div>
             
         Hello 123<br/><h3>Search so and so on Documatic</h3><hr />`;
         const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />")
@@ -123,7 +118,7 @@ export class ResultsOverviewPanel extends WebviewBase {
         return `
         <div class="panel-outer">
         <div class="panel">
-            <div class="panel-header"><h4><a href="${searchResult.codebase.url}">$(github) ${searchResult.codebase.title}</a></h4> ${searchResult.snippet.filePath}</div>
+            <div class="panel-header"><h4><a href="${searchResult.codebase.url}"><span class="icon"><i class="codicon codicon-github"></i></span> ${searchResult.codebase.title}</a></h4> <a href="${codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version)}">${searchResult.snippet.filePath}</a></div>
             <div class="panel-body">
                 <blockquote>${searchResult.snippet.summary}</blockquote>
                 <code>${searchResult.code} </code>
@@ -131,5 +126,25 @@ export class ResultsOverviewPanel extends WebviewBase {
         </div>
         </div>
         ` ;
+    }
+}
+
+
+export function CodebaseLink(codebase: {type: string, url: string, title: string} ) {
+    return `<a href="${codebase.url}" target="_blank" className="codebasePathLink">
+        <span class="icon"><i class="codicon codicon-${codebase.type.toLowerCase()}"/></span>
+        ${codebase.title}
+    </a>`;
+}
+
+
+export function codebasePathUrl(codebase: {type: string, url: string}, func: {filePath: string, startLine: number, endLine: number}, version: {version: string}) {
+    switch (codebase.type) {
+        case "GITHUB":
+            return `${codebase.url}/blob/${version.version}/${func.filePath}#L${func.startLine}-L${func.endLine}`;
+        case "BITBUCKET":
+            return `${codebase.url}/src/${version.version}/${func.filePath}#lines-${func.startLine}`;
+        default:
+            return "#";
     }
 }

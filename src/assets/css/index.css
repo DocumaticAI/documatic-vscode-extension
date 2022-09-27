@@ -29,6 +29,15 @@ textarea:focus,
     outline: 1px solid var(--vscode-focusBorder);
 }
 
+a {
+    text-decoration: none;    
+}
+a:hover {
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+
 .title-text {
     margin-right: 5px;
 }
@@ -413,11 +422,18 @@ body .panel .panel-header {
     align-items: center;
     background: var(--vscode-list-inactiveSelectionBackground);
     border: 1px solid var(--vscode-list-inactiveSelectionBackground);
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
 .panel-header h4 {
     margin: 0;
     padding-right: 1em;
+}
+
+.panel-header h4 a {
+    display: flex;
+    font-weight: bolder;
 }
 
 .panel-header .panel-actions {
