@@ -95,7 +95,7 @@ export class ResultsOverviewPanel extends WebviewBase {
         	// Get resource paths
 		const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'assets', 'css', 'index.css'));
 		const codiconsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
-		const hljsCSS = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', 'highlight.js', 'styles', 'github-dark.css'));
+		const hljsCSS = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', 'highlight.js', 'styles', [1,4].includes(vscode.window.activeColorTheme.kind) ? 'github.css' : 'github-dark.css'));
 
         const headerHTML = `<!DOCTYPE html>
         <html lang="en">
