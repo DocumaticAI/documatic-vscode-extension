@@ -185,8 +185,8 @@ function getHighlightedString(code: string, lang: string) {
 
     if (lang && hljs.getLanguage(lang)) {
         try {
-            return `<div>${hljs.highlight(code.replace(/[^\s]\n[^\s]/g, '\n\n'), {language: lang, ignoreIllegals: true}).value}</div>`;
+            return `<pre><code>${hljs.highlight(code.replace(/[^\s]\n[^\s]/g, '\n\n'), {language: lang, ignoreIllegals: true}).value}</code></pre>`;
         } catch (error) {}
     }
-    return `<pre>${hljs.highlightAuto(code).value}</pre>`
+    return `<pre><code>${hljs.highlightAuto(code).value}</code></pre>`
 }
