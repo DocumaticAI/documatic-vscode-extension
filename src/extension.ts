@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import axios, { AxiosInstance } from "axios";
 import { OrganisationsTreeDataProvider, ProjectsTreeDataProvider } from './dataProviders';
+import { ResultsOverviewPanel, SearchResultsViewProvider } from './searchResultsViewProvider';
 
 export let globalContext: vscode.ExtensionContext;
 export let globalAxios: AxiosInstance;
@@ -42,6 +43,10 @@ export function activate(context: vscode.ExtensionContext) {
 			orgDataProvider.refresh();
 		}),
 		vscode.window.registerUriHandler(loginUriHandler),
+		vscode.commands.registerCommand('documatic.showSearchBox', async () => {
+			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler) 
+		})
+
 		// new DocumaticAuthenticationProvider(context)
 	];
 
@@ -88,6 +93,24 @@ let getDocumaticData = async () => {
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false)
 	}
 }
+
+let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
+	const searchInputValue = await vscode.window.showInputBox({title:"Search", placeHolder:"Where are we connecting to databases?",prompt:"Enter some text to search in your codebases"});
+	if (!searchInputValue) {
+		vscode.window.showErrorMessage("You cancelled the search!");
+		return;
+	}
+	vscode.window.showInformationMessage(`Got the search term - ${searchInputValue}`);
+	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue}})).data
+	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
+	
+	vscode.commands.executeCommand('setContext', 'documatic.have_search_results', true)
+	const searchViewProvider = new SearchResultsViewProvider()
+	globalContext.subscriptions.push(vscode.window.registerWebviewViewProvider("documatic:home_search_results", searchViewProvider))
+
+	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults)
+}
+
 
 // this method is called when your extension is deactivated
 export function deactivate() {}

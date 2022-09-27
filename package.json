@@ -11,13 +11,17 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:documatic.refreshDocumaticInfoFromStore",
+    "onCommand:documatic.showSearchBox",
     "onCommand:documatic.helloWorld",
     "onCommand:documatic.login",
     "onUri",
-    "onStartupFinished"
+    "onStartupFinished",
+    "onView:documatic:home_search_results"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    
     "commands": [
       {
         "command": "documatic.helloWorld",
@@ -34,6 +38,12 @@
         "title": "Refresh",
         "category": "Documatic",
         "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "documatic.showSearchBox",
+        "title": "Search",
+        "category": "Documatic",
+        "icon": "$(search-view-icon)"
       }
     ],
     "viewsContainers": {
@@ -56,6 +66,11 @@
           "id": "documatic:home",
           "when": "documatic.isLoggedIn",
           "name": "Projects"
+        },
+        {
+          "id": "documatic:home_search_results",
+          "when": "documatic.have_search_results",
+          "name": "Search Results"
         },
         {
           "id": "documatic:home_organisations",
