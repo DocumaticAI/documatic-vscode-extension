@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { getNonce, WebviewBase } from './sub/webviewBase';
+import hljs from 'highlight.js';
+
 
 export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
@@ -93,6 +95,7 @@ export class ResultsOverviewPanel extends WebviewBase {
         	// Get resource paths
 		const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'assets', 'css', 'index.css'));
 		const codiconsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
+		const hljsCSS = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', 'highlight.js', 'styles', 'github-dark.css'));
 
         const headerHTML = `<!DOCTYPE html>
         <html lang="en">
@@ -105,23 +108,31 @@ export class ResultsOverviewPanel extends WebviewBase {
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
-            </head>
-            <body class="${process.platform}">
-            
-        Hello 123<br/><h3>Search so and so on Documatic</h3><hr />`;
-        const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />")
+				<link href="${hljsCSS}" rel="stylesheet" />
+                
+                </head>
+                <body class="${process.platform}">
+                
+                Hello 123<br/><h3>Search so and so on Documatic</h3><hr />`;
+
+                const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />")
         const footerHTML = "</body></html>";
         return headerHTML+contentHTML+footerHTML;
     } 
 
     protected getHTMLcontentForSearchResult(searchResult: any) {
+        
+        const lang = normalizeHighlightLang(searchResult.snippet.filePath.split(".").slice(-1).join());
+        const highlightedHTML = getHighlightedString(searchResult.code, lang);
+
+
         return `
         <div class="panel-outer">
         <div class="panel">
             <div class="panel-header"><h4><a href="${searchResult.codebase.url}"><span class="icon"><i class="codicon codicon-github"></i></span> ${searchResult.codebase.title}</a></h4> <a href="${codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version)}">${searchResult.snippet.filePath}</a></div>
             <div class="panel-body">
                 <blockquote>${searchResult.snippet.summary}</blockquote>
-                <code>${searchResult.code} </code>
+                <div>${highlightedHTML}</div>
             </div>
         </div>
         </div>
@@ -147,4 +158,35 @@ export function codebasePathUrl(codebase: {type: string, url: string}, func: {fi
         default:
             return "#";
     }
+}
+
+
+function normalizeHighlightLang(lang: string) {
+	switch (lang && lang.toLowerCase()) {
+		case 'tsx':
+		case 'typescriptreact':
+			// Workaround for highlight not supporting tsx: https://github.com/isagalaev/highlight.js/issues/1155
+			return 'jsx';
+
+		case 'json5':
+		case 'jsonc':
+			return 'json';
+
+		case 'c#':
+		case 'csharp':
+			return 'cs';
+
+		default:
+			return lang;
+	}
+}
+
+function getHighlightedString(code: string, lang: string) {
+
+    if (lang && hljs.getLanguage(lang)) {
+        try {
+            return `<div>${hljs.highlight(code.replace(/[^\s]\n[^\s]/g, '\n\n'), {language: lang, ignoreIllegals: true}).value}</div>`;
+        } catch (error) {}
+    }
+    return `<pre>${hljs.highlightAuto(code).value}</pre>`
 }
