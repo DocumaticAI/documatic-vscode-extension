@@ -16,8 +16,7 @@
     "onCommand:documatic.helloWorld",
     "onCommand:documatic.login",
     "onUri",
-    "onStartupFinished",
-    "onView:documatic:home_search_results"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -65,11 +64,6 @@
           "id": "documatic:home",
           "when": "documatic.isLoggedIn",
           "name": "Projects"
-        },
-        {
-          "id": "documatic:home_search_results",
-          "when": "documatic.have_search_results",
-          "name": "Search Results"
         },
         {
           "id": "documatic:home_organisations",

@@ -104,10 +104,6 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue}})).data
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	
-	vscode.commands.executeCommand('setContext', 'documatic.have_search_results', true)
-	const searchViewProvider = new SearchResultsViewProvider()
-	globalContext.subscriptions.push(vscode.window.registerWebviewViewProvider("documatic:home_search_results", searchViewProvider))
-
 	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults)
 }
 
