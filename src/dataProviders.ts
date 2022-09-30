@@ -5,8 +5,15 @@ import {
   TreeDataProvider,
   TreeItem,
   TreeItemCollapsibleState,
+  workspace,
+  window,
+  CancellationToken,
+  ProviderResult,
+  languages
 } from "vscode";
 import { globalAxios, globalContext } from "./extension";
+
+import * as vscode from "vscode";
 
 class Dependency extends TreeItem {
   constructor(
@@ -99,12 +106,18 @@ class FileItem extends TreeItem {
 }
 
 class ObjectItem extends TreeItem {
+  repo: string;
+  path: string;
   constructor(
-    name: string, 
-    public readonly collapsibleState: TreeItemCollapsibleState
+    name: string,
+    public readonly collapsibleState: TreeItemCollapsibleState,
+    repo?: string,
+    path?: string
     ) {
       super(name, collapsibleState);
       this.iconPath = new ThemeIcon("symbol-object");
+      this.repo = repo?? "";
+      this.path = path?? "";
     }
 }
 
@@ -200,9 +213,25 @@ export class OrganisationsTreeDataProvider
     return element;
   }
 
+  async resolveTreeItem(item: TreeItem, element: Project | Organisation | FolderItem | FileItem | ObjectItem, token: CancellationToken): Promise<undefined> {
+    
+    if (element instanceof ObjectItem) {
+      
+      // const objDoc = await workspace.openTextDocument({content: "print(12)\n### asdf233\na = input()\nprint(a)\n\n\nclass A:\n\tdef __init__():\n\t\tprint(1223)\n\tdef abcd():\n\t\tprint(2131)\n\ndef asaa():\n\tprint(2222)"});
+      const objDoc = await workspace.openTextDocument({content: "console.log(1)\nconsole.log(2)\nconst a = (b: string) = console.log(b) "});
+      await window.showTextDocument(objDoc);
+      await languages.setTextDocumentLanguage(objDoc, "typescript");
+      // await languages.setTextDocumentLanguage(objDoc, "python");
+      // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
+
+    }
+    return ;
+    
+  }
+
   async getChildren(
     element?: Organisation | Project | FolderItem | FileItem | ObjectItem
-  ): Promise<Organisation[] | Project[] | FolderItem[] | FileItem[] | ObjectItem[] | null | undefined> {
+  ): Promise<(Organisation | Project | FolderItem | FileItem | ObjectItem)[] | null | undefined> {
     if (element) {
       
       if (element instanceof FolderItem) {
@@ -212,7 +241,7 @@ export class OrganisationsTreeDataProvider
       else if (element instanceof FileItem) {
         return Promise.resolve(this.getListfromObjects(element.childObjects));
       }
-      
+
       else if (element instanceof Project) {
         let existing_object_list: {[key: number]: { [key: string]: string[] }} | undefined = await globalContext.globalState.get("objects_lists");
         
