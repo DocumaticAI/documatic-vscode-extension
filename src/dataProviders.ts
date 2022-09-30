@@ -14,6 +14,8 @@ import {
 import { globalAxios, globalContext } from "./extension";
 
 import * as vscode from "vscode";
+import { type } from "os";
+import { getExtensionFromPath, getLangFromExt } from "./utils";
 
 class Dependency extends TreeItem {
   constructor(
@@ -130,9 +132,10 @@ class ObjectItem extends TreeItem {
     ) {
       super(name, collapsibleState);
       this.iconPath = new ThemeIcon("symbol-object");
+      this.tooltip = `${projectId}-${path}`;
+      this.label = name ?? "";
       this.projectId = projectId?? 0;
       this.path = path?? "";
-      this.tooltip = `${projectId}-${path}`
     }
 }
 
@@ -233,9 +236,12 @@ export class OrganisationsTreeDataProvider
     if (element instanceof ObjectItem) {
       
       // const objDoc = await workspace.openTextDocument({content: "print(12)\n### asdf233\na = input()\nprint(a)\n\n\nclass A:\n\tdef __init__():\n\t\tprint(1223)\n\tdef abcd():\n\t\tprint(2131)\n\ndef asaa():\n\tprint(2222)"});
-      const objDoc = await workspace.openTextDocument({content: "console.log(1)\nconsole.log(2)\nconst a = (b: string) = console.log(b) "});
+      const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof(element.label) === "string" ? element.label : "")}`)).data;
+      const objDoc = await workspace.openTextDocument({content: snippetFromBackend.code});
       await window.showTextDocument(objDoc);
-      await languages.setTextDocumentLanguage(objDoc, "typescript");
+      const ext = getExtensionFromPath(element.path);
+      const langId = getLangFromExt(ext);
+      await languages.setTextDocumentLanguage(objDoc, langId);
       // await languages.setTextDocumentLanguage(objDoc, "python");
       // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
 
