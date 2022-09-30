@@ -45,6 +45,14 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerUriHandler(loginUriHandler),
 		vscode.commands.registerCommand('documatic.showSearchBox', async () => {
 			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler) 
+		}),
+
+		vscode.languages.registerHoverProvider('typescript', {
+			provideHover(document, position, token) {
+				return {
+					contents: ['Hover content']
+				}
+			},
 		})
 
 		// new DocumaticAuthenticationProvider(context)
