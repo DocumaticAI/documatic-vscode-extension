@@ -81,43 +81,58 @@ interface RecursiveItem {
 
 class FolderItem extends TreeItem {
   tree: RecursiveItem;
+  projectId: number;
+  path: string;
   constructor(
     name: string, 
     tree: RecursiveItem,
-    public readonly collapsibleState: TreeItemCollapsibleState
+    public readonly collapsibleState: TreeItemCollapsibleState,
+    projectId: number,
+    path: string
+    
     ) {
       super(name, collapsibleState);
       this.tree = tree;
       this.iconPath = ThemeIcon.Folder;
+      this.projectId= projectId;
+      this.path= path;
     }
 }
 
 class FileItem extends TreeItem {
   childObjects: string[];
+  projectId: number;
+  path: string;
   constructor(
     name: string, 
     childObjects: string[],
-    public readonly collapsibleState: TreeItemCollapsibleState
+    public readonly collapsibleState: TreeItemCollapsibleState,
+    projectId: number,
+    path: string
+    
     ) {
       super(name, collapsibleState);
       this.childObjects = childObjects;
       this.iconPath = ThemeIcon.File;
+      this.projectId= projectId;
+      this.path= path;
     }
 }
 
 class ObjectItem extends TreeItem {
-  repo: string;
+  projectId: number;
   path: string;
   constructor(
     name: string,
     public readonly collapsibleState: TreeItemCollapsibleState,
-    repo?: string,
+    projectId?: number,
     path?: string
     ) {
       super(name, collapsibleState);
       this.iconPath = new ThemeIcon("symbol-object");
-      this.repo = repo?? "";
+      this.projectId = projectId?? 0;
       this.path = path?? "";
+      this.tooltip = `${projectId}-${path}`
     }
 }
 
@@ -235,11 +250,11 @@ export class OrganisationsTreeDataProvider
     if (element) {
       
       if (element instanceof FolderItem) {
-        return Promise.resolve(this.generateTreeFromObjects(element.tree))
+        return Promise.resolve(this.generateTreeFromObjects(element.tree, element.projectId, element.path+"/"+element.label))
       }
 
       else if (element instanceof FileItem) {
-        return Promise.resolve(this.getListfromObjects(element.childObjects));
+        return Promise.resolve(this.getListfromObjects(element.childObjects, element.projectId, element.path+"/"+element.label));
       }
 
       else if (element instanceof Project) {
@@ -255,7 +270,7 @@ export class OrganisationsTreeDataProvider
 
         await globalContext.globalState.update("objects_lists", existing_object_list)
         
-        return Promise.resolve(this.generateTreeFromObjects(objects));
+        return Promise.resolve(this.generateTreeFromObjects(objects, element.objId, ""));
       }
 
       else if (element instanceof Organisation) {
@@ -327,7 +342,7 @@ export class OrganisationsTreeDataProvider
     );
   }
 
-  generateTreeFromObjects(objects: {[key:string]: string[] | RecursiveItem}) {
+  generateTreeFromObjects(objects: {[key:string]: string[] | RecursiveItem}, projectId: number, path: string) {
     const fileNames = Object.keys(objects);
     const treeStructure: any = {};
     fileNames.map(f => { f.split("/").reduce((r,e) => r[e] || (r[e] = f.endsWith(e) ? objects[f] : {}), treeStructure) });
@@ -335,14 +350,14 @@ export class OrganisationsTreeDataProvider
     const treekeys = Object.keys(treeStructure);
     return treekeys.sort().map(treekey => {
       if (Array.isArray(treeStructure[treekey]))
-        return new FileItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed)
-      else return new FolderItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed)
+        return new FileItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed, projectId, path)
+      else return new FolderItem(treekey, treeStructure[treekey], TreeItemCollapsibleState.Collapsed, projectId, path)
     })
     
   }
 
-  getListfromObjects(objects: string[]) {
-    return objects.map(obj => new ObjectItem(obj, TreeItemCollapsibleState.None))
+  getListfromObjects(objects: string[], projectId: number, path: string) {
+    return objects.map(obj => new ObjectItem(obj, TreeItemCollapsibleState.None, projectId, path))
   }
 }
 
