@@ -236,10 +236,14 @@ export class OrganisationsTreeDataProvider
   async resolveTreeItem(item: TreeItem, element: Project | Organisation | FolderItem | FileItem | ObjectItem, token: CancellationToken): Promise<undefined> {
     
     if (element instanceof ObjectItem) {
+			vscode.window.withProgress({ cancellable: false, title: "Documatic: Get snippet code", location: vscode.ProgressLocation.Notification }, async (progress) => {
+        
       
       const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof(element.label) === "string" ? element.label : "")}`)).data;
       // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
       
+      progress.report({ message: "Finished fetching the snippet, checking if it's already in the workspace"})
+
       vscode.workspace.workspaceFolders?.map( async folder => {
         const currentFolderVersion = execSync(`cd ${folder.uri.path} && git rev-parse HEAD`).toString().trim();
         const allVersionsFromFolder = execSync(`cd ${folder.uri.path} && git --no-pager log --pretty=format:"%H"`).toString().trim();
@@ -269,6 +273,7 @@ export class OrganisationsTreeDataProvider
 
         }
       })
+    } ) 
 
 
     }
