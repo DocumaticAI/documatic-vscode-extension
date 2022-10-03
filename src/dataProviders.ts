@@ -38,13 +38,14 @@ class Project extends TreeItem {
     title: string,
     description: string,
     owner: string,
-    public readonly collapsibleState: TreeItemCollapsibleState
+    public readonly collapsibleState: TreeItemCollapsibleState,
+    folder?: vscode.WorkspaceFolder 
   ) {
     super(title, collapsibleState);
     this.objId = id
-    this.tooltip = description;
-    this.description = owner;
-    this.iconPath = new ThemeIcon("repo")
+    this.description = `${owner} ${folder ? "(In Workspace as "+folder.name+")": ""}`;
+    this.tooltip = `${description} - ${this.description}`;
+    this.iconPath = folder ? new ThemeIcon("project") : new ThemeIcon("repo")
   }
 }
 
@@ -54,6 +55,7 @@ type ProjectDataType = {
   description: string;
   userId?: string;
   organisationId?: number;
+  folder?: vscode.WorkspaceFolder;
 };
 
 type OrganisationDataType = {
@@ -202,7 +204,8 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
             ? this.orgs?.find((o: { id: number }) => o.id == j.organisationId)
                 ?.name ?? "Different Organisation"
             : "Different Organisation",
-          TreeItemCollapsibleState.None
+          TreeItemCollapsibleState.None,
+          j.folder
         )
     );
   }
@@ -374,7 +377,8 @@ export class OrganisationsTreeDataProvider
             ? this.orgs?.find((o: { id: number }) => o.id == j.organisationId)
                 ?.name ?? "Different Organisation"
             : "Different Organisation",
-          TreeItemCollapsibleState.Collapsed
+          TreeItemCollapsibleState.Collapsed,
+          j.folder
         )
     );
   }

@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 import axios, { AxiosInstance } from "axios";
 import { OrganisationsTreeDataProvider, ProjectsTreeDataProvider } from './dataProviders';
 import { ResultsOverviewPanel, SearchResultsViewProvider } from './searchResultsViewProvider';
+import { readFileSync } from 'fs';
+import path = require('path');
 
 export let globalContext: vscode.ExtensionContext;
 export let globalAxios: AxiosInstance;
@@ -49,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler) 
 		}),
 
-		vscode.languages.registerHoverProvider('typescript', {
+		vscode.languages.registerHoverProvider('*', {
 			provideHover(document, position, token) {
 				return {
 					contents: ['Hover content']
@@ -92,9 +94,25 @@ let getDocumaticData = async () => {
 	try {
 		await Promise.all([
 			globalContext.globalState.update("profile", (await globalAxios.get("/profile")).data),
-			globalContext.globalState.update("projects", (await globalAxios.get("/project")).data),
+			globalContext.globalState.update("projects", (await globalAxios.get("/project?codebases=true")).data),
 			globalContext.globalState.update("organisations", (await globalAxios.get("/organisation")).data)
 		])
+
+		let projectsFromBackend: any[] = (await globalContext.globalState.get("projects")) ?? [];
+		let foldersFromDocumatic: vscode.WorkspaceFolder[] = []
+
+		console.log("from baclend", projectsFromBackend)
+		vscode.workspace.workspaceFolders?.map( async folder => {
+			const gitConfig = readFileSync(path.join(folder.uri.path, ".git/config")).toString().trim();
+			const projectForFolder = projectsFromBackend.find(proj => gitConfig.includes(proj.codebase?.url));
+			console.log(1234, gitConfig, projectsFromBackend.map(proj => proj.codebase?.url), projectForFolder)
+			if (projectForFolder) {
+				foldersFromDocumatic.push(folder);
+				projectForFolder.folder = folder;
+			}
+		})
+		await globalContext.globalState.update("projects", projectsFromBackend);
+		await globalContext.globalState.update("foldersFromDocumatic", foldersFromDocumatic);
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true)
 		
 	} catch (error) {
