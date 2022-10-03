@@ -237,30 +237,35 @@ export class OrganisationsTreeDataProvider
     
     if (element instanceof ObjectItem) {
       
-      // const objDoc = await workspace.openTextDocument({content: "print(12)\n### asdf233\na = input()\nprint(a)\n\n\nclass A:\n\tdef __init__():\n\t\tprint(1223)\n\tdef abcd():\n\t\tprint(2131)\n\ndef asaa():\n\tprint(2222)"});
       const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof(element.label) === "string" ? element.label : "")}`)).data;
-      const objDoc = await workspace.openTextDocument({content: snippetFromBackend.full_file});
-      await window.showTextDocument(objDoc);
-      const ext = getExtensionFromPath(element.path);
-      const langId = getLangFromExt(ext);
-      await languages.setTextDocumentLanguage(objDoc, langId);
-      // await languages.setTextDocumentLanguage(objDoc, "python");
       // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
       
-      const gitCommand = "git rev-parse HEAD";
       vscode.workspace.workspaceFolders?.map( async folder => {
-        const currentFolderVersion = execSync(`cd ${folder.uri.path} && ${gitCommand}`).toString().trim();
+        const currentFolderVersion = execSync(`cd ${folder.uri.path} && git rev-parse HEAD`).toString().trim();
+        const allVersionsFromFolder = execSync(`cd ${folder.uri.path} && git --no-pager log --pretty=format:"%H"`).toString().trim();
         console.log("git commit hash for", folder.name, currentFolderVersion, snippetFromBackend.version.version)
+        console.log("git history", allVersionsFromFolder)
         if (snippetFromBackend.version.version === currentFolderVersion)
           {
             const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
             await window.showTextDocument(fileInFolder)
-          console.log("should have opened ", join(folder.uri.path, element.path))}
-        else {
+          console.log("should have opened ", join(folder.uri.path, element.path))
+        }
+        else if (allVersionsFromFolder.indexOf(snippetFromBackend.version.version) > -1) {
           
-          console.log("git versions are different", snippetFromBackend.version.version, currentFolderVersion, join(folder.uri.path, element.path))
+          console.log("git versions are different, but found the version in the history", snippetFromBackend.version.version, currentFolderVersion, join(folder.uri.path, element.path))
+          // TODO: show the file at that version instead of current version
           const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
           await window.showTextDocument(fileInFolder)
+        } 
+        else {
+          vscode.window.showInformationMessage('File not found in workspace! Opening a temporary file with the contents from Documatic');
+          const objDoc = await workspace.openTextDocument({content: snippetFromBackend.full_file});
+          await window.showTextDocument(objDoc);
+          const ext = getExtensionFromPath(element.path);
+          const langId = getLangFromExt(ext);
+          await languages.setTextDocumentLanguage(objDoc, langId);
+
         }
       })
 
