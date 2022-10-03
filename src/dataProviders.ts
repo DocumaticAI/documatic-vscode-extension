@@ -237,7 +237,7 @@ export class OrganisationsTreeDataProvider
       
       // const objDoc = await workspace.openTextDocument({content: "print(12)\n### asdf233\na = input()\nprint(a)\n\n\nclass A:\n\tdef __init__():\n\t\tprint(1223)\n\tdef abcd():\n\t\tprint(2131)\n\ndef asaa():\n\tprint(2222)"});
       const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof(element.label) === "string" ? element.label : "")}`)).data;
-      const objDoc = await workspace.openTextDocument({content: snippetFromBackend.code});
+      const objDoc = await workspace.openTextDocument({content: snippetFromBackend.full_file});
       await window.showTextDocument(objDoc);
       const ext = getExtensionFromPath(element.path);
       const langId = getLangFromExt(ext);
