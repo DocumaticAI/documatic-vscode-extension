@@ -245,23 +245,24 @@ export class OrganisationsTreeDataProvider
         const allVersionsFromFolder = execSync(`cd ${folder.uri.path} && git --no-pager log --pretty=format:"%H"`).toString().trim();
         console.log("git commit hash for", folder.name, currentFolderVersion, snippetFromBackend.version.version)
         console.log("git history", allVersionsFromFolder)
+        const sectionRange = new vscode.Range(new vscode.Position(snippetFromBackend.snippet.startLine, snippetFromBackend.snippet.startColumn), new vscode.Position(snippetFromBackend.snippet.endLine, snippetFromBackend.snippet.endColumn))
         if (snippetFromBackend.version.version === currentFolderVersion)
-          {
-            const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
-            await window.showTextDocument(fileInFolder)
+        {
+          const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
+          await window.showTextDocument(fileInFolder, { preserveFocus: true, selection: sectionRange})
           console.log("should have opened ", join(folder.uri.path, element.path))
         }
-        else if (allVersionsFromFolder.indexOf(snippetFromBackend.version.version) > -1) {
-          
+        else if (allVersionsFromFolder.indexOf(snippetFromBackend.version.version) > -1)
+        {
           console.log("git versions are different, but found the version in the history", snippetFromBackend.version.version, currentFolderVersion, join(folder.uri.path, element.path))
           // TODO: show the file at that version instead of current version
           const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
-          await window.showTextDocument(fileInFolder)
+          await window.showTextDocument(fileInFolder, { preserveFocus: true, selection: sectionRange})
         } 
         else {
           vscode.window.showInformationMessage('File not found in workspace! Opening a temporary file with the contents from Documatic');
           const objDoc = await workspace.openTextDocument({content: snippetFromBackend.full_file});
-          await window.showTextDocument(objDoc);
+          await window.showTextDocument(objDoc, { preserveFocus: true, selection: sectionRange});
           const ext = getExtensionFromPath(element.path);
           const langId = getLangFromExt(ext);
           await languages.setTextDocumentLanguage(objDoc, langId);
