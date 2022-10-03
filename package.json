@@ -86,6 +86,21 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "Documatic",
+      "properties": {
+        "documatic.platformURL": {
+          "type": "string",
+          "default": "https://app.documatic.com",
+          "description": "Platform URL for your documatic instance. Do not change this unless the Documatic team asks you of it"
+        },
+        "documatic.apiURL": {
+          "type": "string",
+          "default": "https://api.documatic.com",
+          "description": "API URL for your documatic instance. Do not change this unless the Documatic team asks you of it"
+        }
+      }
     }
   },
   "scripts": {

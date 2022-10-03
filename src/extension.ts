@@ -7,6 +7,8 @@ import { ResultsOverviewPanel, SearchResultsViewProvider } from './searchResults
 
 export let globalContext: vscode.ExtensionContext;
 export let globalAxios: AxiosInstance;
+const apiURL: string = vscode.workspace.getConfiguration("documatic").get("apiURL") ?? "https://api.documatic.com/"
+const platformURL: string = vscode.workspace.getConfiguration("documatic").get("platformURL") ?? "https://app.documatic.com/"
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -36,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('documatic.login', () => {
 			vscode.window.showInformationMessage('Opening Documatic in your browser!');
 			// vscode.env.openExternal(vscode.Uri.parse("https://app.documatic.com/vscode/login"))
-			vscode.env.openExternal(vscode.Uri.parse("http://localhost:3000/vscode/login"))
+			vscode.env.openExternal(vscode.Uri.parse(`${platformURL}/vscode/login`))
 		}),
 		vscode.commands.registerCommand('documatic.refreshDocumaticInfoFromStore', () => {
 			projectDataProvider.refresh();
@@ -82,7 +84,7 @@ let getDocumaticData = async () => {
 		return;
 	}
 	globalAxios = axios.create({
-		baseURL: "http://localhost:8180/",
+		baseURL: apiURL,
 		headers: {
 			"Authorization": `Bearer ${token}`
 		}
