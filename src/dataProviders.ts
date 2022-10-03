@@ -16,6 +16,8 @@ import { globalAxios, globalContext } from "./extension";
 import * as vscode from "vscode";
 import { type } from "os";
 import { getExtensionFromPath, getLangFromExt } from "./utils";
+import { execSync } from "child_process";
+import { join } from "path";
 
 class Dependency extends TreeItem {
   constructor(
@@ -244,6 +246,24 @@ export class OrganisationsTreeDataProvider
       await languages.setTextDocumentLanguage(objDoc, langId);
       // await languages.setTextDocumentLanguage(objDoc, "python");
       // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
+      
+      const gitCommand = "git rev-parse HEAD";
+      vscode.workspace.workspaceFolders?.map( async folder => {
+        const currentFolderVersion = execSync(`cd ${folder.uri.path} && ${gitCommand}`).toString().trim();
+        console.log("git commit hash for", folder.name, currentFolderVersion, snippetFromBackend.version.version)
+        if (snippetFromBackend.version.version === currentFolderVersion)
+          {
+            const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
+            await window.showTextDocument(fileInFolder)
+          console.log("should have opened ", join(folder.uri.path, element.path))}
+        else {
+          
+          console.log("git versions are different", snippetFromBackend.version.version, currentFolderVersion, join(folder.uri.path, element.path))
+          const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path))
+          await window.showTextDocument(fileInFolder)
+        }
+      })
+
 
     }
     return ;
