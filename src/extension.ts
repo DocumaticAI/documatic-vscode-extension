@@ -9,8 +9,8 @@ import path = require('path');
 
 export let globalContext: vscode.ExtensionContext;
 export let globalAxios: AxiosInstance;
-const apiURL: string = vscode.workspace.getConfiguration("documatic").get("apiURL") ?? "https://api.documatic.com/"
-const platformURL: string = vscode.workspace.getConfiguration("documatic").get("platformURL") ?? "https://app.documatic.com/"
+const apiURL: string = vscode.workspace.getConfiguration("documatic").get("apiURL") ?? "https://api.documatic.com/";
+const platformURL: string = vscode.workspace.getConfiguration("documatic").get("platformURL") ?? "https://app.documatic.com/";
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('documatic.login', () => {
 			vscode.window.showInformationMessage('Opening Documatic in your browser!');
 			// vscode.env.openExternal(vscode.Uri.parse("https://app.documatic.com/vscode/login"))
-			vscode.env.openExternal(vscode.Uri.parse(`${platformURL}/vscode/login`))
+			vscode.env.openExternal(vscode.Uri.parse(`${platformURL}/vscode/login`));
 		}),
 		vscode.commands.registerCommand('documatic.refreshDocumaticInfoFromStore', () => {
 			projectDataProvider.refresh();
@@ -48,14 +48,14 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.window.registerUriHandler(loginUriHandler),
 		vscode.commands.registerCommand('documatic.showSearchBox', async () => {
-			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler) 
+			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler); 
 		}),
 
 		vscode.languages.registerHoverProvider('*', {
 			provideHover(document, position, token) {
 				return {
 					contents: ['Hover content']
-				}
+				};
 			},
 		})
 
@@ -67,60 +67,60 @@ export function activate(context: vscode.ExtensionContext) {
 
 let loginUriHandler = {
 	handleUri(uri:vscode.Uri) {
-		vscode.window.showInformationMessage(`Recieved the URL from the browser`)
-		const searchParams = new URLSearchParams(uri.query)
+		vscode.window.showInformationMessage(`Recieved the URL from the browser`);
+		const searchParams = new URLSearchParams(uri.query);
 		const tokenB64 = searchParams.get("token");
 		if (tokenB64) {
-			const token = decodeURIComponent(Buffer.from(tokenB64, "base64").toString("ascii"))
+			const token = decodeURIComponent(Buffer.from(tokenB64, "base64").toString("ascii"));
 			globalContext.secrets.store("token", token).then(() => {
-				getDocumaticData()
+				getDocumaticData();
 			});
 		}
 	}
-}
+};
 
 let getDocumaticData = async () => {
 	const token = await globalContext.secrets.get("token");
 	if (!token) {
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false)
+		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
 		return;
 	}
 	globalAxios = axios.create({
 		baseURL: apiURL,
 		headers: {
-			"Authorization": `Bearer ${token}`
+			"authorization": `Bearer ${token}`
 		}
-	})
+	});
 	try {
 		await Promise.all([
 			globalContext.globalState.update("profile", (await globalAxios.get("/profile")).data),
 			globalContext.globalState.update("projects", (await globalAxios.get("/project?codebases=true")).data),
 			globalContext.globalState.update("organisations", (await globalAxios.get("/organisation")).data)
-		])
+		]);
 
 		let projectsFromBackend: any[] = (await globalContext.globalState.get("projects")) ?? [];
-		let foldersFromDocumatic: vscode.WorkspaceFolder[] = []
+		let foldersFromDocumatic: vscode.WorkspaceFolder[] = [];
 
-		console.log("from baclend", projectsFromBackend)
+		console.log("from baclend", projectsFromBackend);
 		vscode.workspace.workspaceFolders?.map( async folder => {
 			const gitConfig = readFileSync(path.join(folder.uri.path, ".git/config")).toString().trim();
 			const projectForFolder = projectsFromBackend.find(proj => gitConfig.includes(proj.codebase?.url));
-			console.log(1234, gitConfig, projectsFromBackend.map(proj => proj.codebase?.url), projectForFolder)
+			console.log(1234, gitConfig, projectsFromBackend.map(proj => proj.codebase?.url), projectForFolder);
 			if (projectForFolder) {
 				foldersFromDocumatic.push(folder);
 				projectForFolder.folder = folder;
 			}
-		})
+		});
 		await globalContext.globalState.update("projects", projectsFromBackend);
 		await globalContext.globalState.update("foldersFromDocumatic", foldersFromDocumatic);
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true)
+		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true);
 		
 	} catch (error) {
-		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again")
-		globalContext.secrets.delete("token")
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false)
+		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again");
+		globalContext.secrets.delete("token");
+		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
 	}
-}
+};
 
 let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	const searchInputValue = await vscode.window.showInputBox({title:"Search", placeHolder:"Where are we connecting to databases?",prompt:"Enter some text to search in your codebases"});
@@ -129,11 +129,11 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 		return;
 	}
 	vscode.window.showInformationMessage(`Got the search term - ${searchInputValue}`);
-	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue}})).data
+	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue}})).data;
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	
-	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults)
-}
+	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults);
+};
 
 
 // this method is called when your extension is deactivated
