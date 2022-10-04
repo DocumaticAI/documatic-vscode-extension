@@ -63,6 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
 	];
 
 	context.subscriptions.push(...disposables);
+	vscode.workspace.onDidChangeWorkspaceFolders(() => getDocumaticData());
 }
 
 let loginUriHandler = {
@@ -80,6 +81,8 @@ let loginUriHandler = {
 };
 
 let getDocumaticData = async () => {
+	vscode.window.withProgress({ cancellable: false, title: "Documatic: Fetch Data from the platform", location: vscode.ProgressLocation.Notification}, async () => {
+	
 	const token = await globalContext.secrets.get("token");
 	if (!token) {
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
@@ -120,6 +123,9 @@ let getDocumaticData = async () => {
 		globalContext.secrets.delete("token");
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
 	}
+
+});
+	
 };
 
 let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
