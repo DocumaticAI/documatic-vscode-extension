@@ -98,15 +98,14 @@ let getDocumaticData = async () => {
 
 		let projectsFromBackend: any[] = (await globalContext.globalState.get("projects")) ?? [];
 
-		console.log("from baclend", projectsFromBackend);
+		// console.log("from backend", projectsFromBackend);
 		vscode.workspace.workspaceFolders?.map( async folder => {
 			const gitConfig = readFileSync(path.join(folder.uri.path, ".git/config")).toString().trim();
 			const projectForFolder = projectsFromBackend.find(proj => gitConfig.includes(proj.codebase?.url));
-			console.log(1234, gitConfig, projectsFromBackend.map(proj => proj.codebase?.url), projectForFolder);
 			if (projectForFolder) {
 				foldersFromDocumatic.push(folder);
 				projectForFolder.folder = folder;
-				objectSummaries[folder.uri.path] = await globalAxios.get(`/project/${projectForFolder.id}/summaries`);
+				objectSummaries[folder.uri.path] = (await globalAxios.get(`/project/${projectForFolder.id}/summaries`)).data;
 			}
 		});
 		await globalContext.globalState.update("projects", projectsFromBackend);
