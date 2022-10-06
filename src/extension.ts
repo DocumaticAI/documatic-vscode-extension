@@ -6,6 +6,7 @@ import { OrganisationsTreeDataProvider, ProjectsTreeDataProvider } from './dataP
 import { ResultsOverviewPanel, SearchResultsViewProvider } from './searchResultsViewProvider';
 import { readFileSync } from 'fs';
 import path = require('path');
+import { DocumaticHoverProvider, foldersFromDocumatic, objectSummaries } from './hoverProvider';
 
 export let globalContext: vscode.ExtensionContext;
 export let globalAxios: AxiosInstance;
@@ -51,13 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler); 
 		}),
 
-		vscode.languages.registerHoverProvider('*', {
-			provideHover(document, position, token) {
-				return {
-					contents: ['Hover content']
-				};
-			},
-		})
+		vscode.languages.registerHoverProvider('*', new DocumaticHoverProvider())
 
 		// new DocumaticAuthenticationProvider(context)
 	];
@@ -102,7 +97,6 @@ let getDocumaticData = async () => {
 		]);
 
 		let projectsFromBackend: any[] = (await globalContext.globalState.get("projects")) ?? [];
-		let foldersFromDocumatic: vscode.WorkspaceFolder[] = [];
 
 		console.log("from baclend", projectsFromBackend);
 		vscode.workspace.workspaceFolders?.map( async folder => {
@@ -112,10 +106,13 @@ let getDocumaticData = async () => {
 			if (projectForFolder) {
 				foldersFromDocumatic.push(folder);
 				projectForFolder.folder = folder;
+				objectSummaries[folder.uri.path] = await globalAxios.get(`/project/${projectForFolder.id}/summaries`);
 			}
 		});
 		await globalContext.globalState.update("projects", projectsFromBackend);
 		await globalContext.globalState.update("foldersFromDocumatic", foldersFromDocumatic);
+		await globalContext.globalState.update("objects_lists", {});
+		// await globalContext.globalState.update("object_summaries", objectSummaries);
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true);
 		
 	} catch (error) {
