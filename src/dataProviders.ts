@@ -41,9 +41,8 @@ class Project extends TreeItem {
   ) {
     super(title, collapsibleState);
     this.objId = id;
-    this.description = `${owner} ${
-      folder ? "(In Workspace as " + folder.name + ")" : ""
-    }`;
+    this.description = `${owner} ${folder ? "(In Workspace as " + folder.name + ")" : ""
+      }`;
     this.tooltip = `${description} - ${this.description}`;
     this.iconPath = folder ? new ThemeIcon("project") : new ThemeIcon("repo");
   }
@@ -152,7 +151,10 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
 
   async getInitialData() {
     this.profile = await globalContext.globalState.get("profile");
-    const orgs: { id: number; name: string }[] | undefined =
+    const orgs: {
+      id: number;
+      name: string
+    }[] | undefined =
       await globalContext.globalState.get("organisations");
     this.orgs = orgs;
     const projects: ProjectDataType[] | undefined =
@@ -195,14 +197,7 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
           j.id,
           j.title,
           j.description,
-          j.userId
-            ? j.userId === this.profile.id
-              ? "Myself"
-              : j.userId
-            : j.organisationId
-            ? this.orgs?.find((o: { id: number }) => o.id === j.organisationId)
-                ?.name ?? "Different Organisation"
-            : "Different Organisation",
+          j.userId ? j.userId === this.profile.id ? "Myself" : j.userId : j.organisationId ? this.orgs?.find((o: { id: number }) => o.id === j.organisationId)?.name ?? "Different Organisation" : "Different Organisation",
           TreeItemCollapsibleState.None,
           j.folder
         )
@@ -212,9 +207,9 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
 
 export class OrganisationsTreeDataProvider
   implements
-    TreeDataProvider<
-      Organisation | Project | FolderItem | FileItem | ObjectItem
-    >
+  TreeDataProvider<
+    Organisation | Project | FolderItem | FileItem | ObjectItem
+  >
 {
   orgs: any;
   projects: any;
@@ -226,7 +221,10 @@ export class OrganisationsTreeDataProvider
 
   async getInitialData() {
     this.profile = await globalContext.globalState.get("profile");
-    const orgs: { id: number; name: string }[] | undefined =
+    const orgs: {
+      id: number;
+      name: string
+    }[] | undefined =
       await globalContext.globalState.get("organisations");
     this.orgs = orgs;
     const projects: ProjectDataType[] | undefined =
@@ -251,97 +249,51 @@ export class OrganisationsTreeDataProvider
           location: vscode.ProgressLocation.Notification,
         },
         async (progress) => {
-          const snippetFromBackend = (
-            await globalAxios.get(
-              `/project/${element.projectId}/snippet?file=${encodeURIComponent(
-                element.path
-              )}&name=${encodeURIComponent(
-                typeof element.label === "string" ? element.label : ""
-              )}`
-            )
-          ).data;
+          const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof element.label === "string" ? element.label : "")}`)).data;
+          console.log("got the file", snippetFromBackend);
           // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
 
           progress.report({
-            message:
-              "Finished fetching the snippet, checking if it's already in the workspace",
+            message: "Finished fetching the snippet, checking if it's already in the workspace",
           });
-
-          vscode.workspace.workspaceFolders?.map(async (folder) => {
-            const currentFolderVersion = execSync(
-              `cd ${folder.uri.path} && git rev-parse HEAD`
-            )
-              .toString()
-              .trim();
-            const allVersionsFromFolder = execSync(
-              `cd ${folder.uri.path} && git --no-pager log --pretty=format:"%H"`
-            )
-              .toString()
-              .trim();
-            console.log(
-              "git commit hash for",
-              folder.name,
-              currentFolderVersion,
-              snippetFromBackend.version.version
-            );
-            console.log("git history", allVersionsFromFolder);
-            const sectionRange = new vscode.Range(
-              new vscode.Position(
-                snippetFromBackend.snippet.startLine,
-                snippetFromBackend.snippet.startColumn
-              ),
-              new vscode.Position(
-                snippetFromBackend.snippet.endLine,
-                snippetFromBackend.snippet.endColumn
-              )
-            );
-            if (snippetFromBackend.version.version === currentFolderVersion) {
-              const fileInFolder = await workspace.openTextDocument(
-                join(folder.uri.path, element.path)
-              );
-              await window.showTextDocument(fileInFolder, {
-                preserveFocus: true,
-                selection: sectionRange,
-              });
-              console.log(
-                "should have opened ",
-                join(folder.uri.path, element.path)
-              );
-            } else if (
-              allVersionsFromFolder.indexOf(
-                snippetFromBackend.version.version
-              ) > -1
-            ) {
-              console.log(
-                "git versions are different, but found the version in the history",
-                snippetFromBackend.version.version,
-                currentFolderVersion,
-                join(folder.uri.path, element.path)
-              );
-              // TODO: show the file at that version instead of current version
-              const fileInFolder = await workspace.openTextDocument(
-                join(folder.uri.path, element.path)
-              );
-              await window.showTextDocument(fileInFolder, {
-                preserveFocus: true,
-                selection: sectionRange,
-              });
-            } else {
-              vscode.window.showInformationMessage(
-                "File not found in workspace! Opening a temporary file with the contents from Documatic"
-              );
-              const objDoc = await workspace.openTextDocument({
-                content: snippetFromBackend.full_file,
-              });
-              await window.showTextDocument(objDoc, {
-                preserveFocus: true,
-                selection: sectionRange,
-              });
-              const ext = getExtensionFromPath(element.path);
-              const langId = getLangFromExt(ext);
-              await languages.setTextDocumentLanguage(objDoc, langId);
+          const folders = vscode.workspace.workspaceFolders;
+          let isOpened = false;
+          const sectionRange = new vscode.Range(new vscode.Position(snippetFromBackend.snippet.startLine, snippetFromBackend.snippet.startColumn), new vscode.Position(snippetFromBackend.snippet.endLine, snippetFromBackend.snippet.endColumn));
+          if (folders) {
+            for (const folder of folders) {
+              const currentFolderVersion = execSync(`cd ${folder.uri.path} && git rev-parse HEAD`).toString().trim();
+              if (snippetFromBackend.version.version === currentFolderVersion) {
+                const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path));
+                await window.showTextDocument(fileInFolder, { preserveFocus: true, selection: sectionRange, });
+                console.log("should have opened ", join(folder.uri.path, element.path));
+                isOpened = true;
+                break;
+              } else {
+                try {
+                  const commitDesc = execSync(`cd ${folder.uri.path} && git show --oneline -s ${snippetFromBackend.version.version}`);
+                  if (commitDesc.length > 8) {
+                    console.log("git versions are different, but found the version in the history", snippetFromBackend.version.version, currentFolderVersion, join(folder.uri.path, element.path));
+                    // TODO: show the file at that version instead of current version  
+                    const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path));
+                    await window.showTextDocument(fileInFolder, { preserveFocus: true, selection: sectionRange, });
+                    isOpened = true;
+                    break;
+                  }
+                } catch (error) {
+                  // Commit does not exist in the folder, so ignore this
+                }
+              }
             }
-          });
+          }
+
+          if (!isOpened) {
+            vscode.window.showInformationMessage("File not found in workspace! Opening a temporary file with the contents from Documatic");
+            const objDoc = await workspace.openTextDocument({ content: snippetFromBackend.full_file, });
+            await window.showTextDocument(objDoc, { preserveFocus: true, selection: sectionRange, });
+            const ext = getExtensionFromPath(element.path);
+            const langId = getLangFromExt(ext);
+            await languages.setTextDocumentLanguage(objDoc, langId);
+          }
         }
       );
     }
@@ -358,18 +310,12 @@ export class OrganisationsTreeDataProvider
     if (element) {
       if (element instanceof FolderItem) {
         return Promise.resolve(
-          this.generateTreeFromObjects(
-            element.tree,
-            element.projectId,
-            element.path + "/" + element.label
+          this.generateTreeFromObjects(element.tree, element.projectId, element.path + "/" + element.label
           )
         );
       } else if (element instanceof FileItem) {
         return Promise.resolve(
-          this.getListfromObjects(
-            element.childObjects,
-            element.projectId,
-            element.path + "/" + element.label
+          this.getListfromObjects(element.childObjects, element.projectId, element.path + "/" + element.label
           )
         );
       } else if (element instanceof Project) {
@@ -381,8 +327,7 @@ export class OrganisationsTreeDataProvider
         if (existingObjectList && existingObjectList[element.objId]) {
           objects = existingObjectList[element.objId];
         } else {
-          objects = (await globalAxios.get(`/project/${element.objId}/objects`))
-            .data;
+          objects = (await globalAxios.get(`/project/${element.objId}/objects`)).data;
         }
 
         if (!existingObjectList) {
@@ -401,21 +346,12 @@ export class OrganisationsTreeDataProvider
       } else if (element instanceof Organisation) {
         if (this.projects) {
           if (element.label === "Myself") {
-            return Promise.resolve(
-              this.getProjectsListFromProjects(
-                this.projects.filter(
-                  (p: ProjectDataType) => p.userId === this.profile.id
-                )
-              )
-            );
+            return Promise.resolve(this.getProjectsListFromProjects(this.projects.filter((p: ProjectDataType) => p.userId === this.profile.id)));
           }
-          const orgProjects = this.projects?.filter(
-            (p: ProjectDataType) => p.organisationId === Number(element.objId)
+          const orgProjects = this.projects?.filter((p: ProjectDataType) => p.organisationId === Number(element.objId)
           );
           if (orgProjects) {
-            return Promise.resolve(
-              this.getProjectsListFromProjects(orgProjects)
-            );
+            return Promise.resolve(this.getProjectsListFromProjects(orgProjects));
           }
         }
       }
@@ -460,14 +396,7 @@ export class OrganisationsTreeDataProvider
           j.id,
           j.title,
           j.description,
-          j.userId
-            ? j.userId === this.profile.id
-              ? "Myself"
-              : j.userId
-            : j.organisationId
-            ? this.orgs?.find((o: { id: number }) => o.id === j.organisationId)
-                ?.name ?? "Different Organisation"
-            : "Different Organisation",
+          j.userId ? j.userId === this.profile.id ? "Myself" : j.userId : j.organisationId ? this.orgs?.find((o: { id: number }) => o.id === j.organisationId)?.name ?? "Different Organisation" : "Different Organisation",
           TreeItemCollapsibleState.Collapsed,
           j.folder
         )
