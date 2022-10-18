@@ -1,71 +1,61 @@
-# documatic README
+# Documatic
 
-This is the README for your extension "documatic". After writing up a brief description, we recommend including the following sections.
-
+This extension brings [Documatic] to VSCode:
+search code in seconds with our powerful,
+AI-driven search,
+and get insights into your code snippets -
+what does it do?
+what dependencies does it have?
+And more.
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The primary functionality of the Documatic VSCode extension is codesearch.
+[Documatic's][documatic] codesearch product uses AI to link your questions
+to snippets of code,
+so you can ask natural,
+normal questions
+about your codebase
 
-For example if there is an image subfolder under your extension project workspace:
+### Codesearch
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+To run a search, run the command "Documatic Search".
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+To use this extension,
+you must have an active [Documatic] account.
+Sign up for an account [here][documatic-app].
 
-## Extension Settings
+### Connecting your account
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+On the Documatic tab in VSCode, click "sign in".
+This will take you to the Documatic web platform,
+where you can sign in.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None, but please open an issue to report a bug.
 
-## Release Notes
+## Changelog
 
-Users appreciate release notes as you update your extension.
+For full release notes,
+please see the complete changelog
+on the repository.
 
-### 1.0.0
+### 0.0.1
 
-Initial release of ...
+Initial release of Documatic's VSCode extension.
+Comes with codesearch and code snippet analysis.
 
-### 1.0.1
 
-Fixed issue #.
+## About Documatic
 
-### 1.1.0
+Documatic is an AI-first startup
+building tools to help you better understand your code.
 
-Added features X, Y, and Z.
+Don't ask your boss,
+ask [Documatic].
 
----
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+[documatic]: https://www.documatic.com
+[documatic-app]: app.documatic.com
