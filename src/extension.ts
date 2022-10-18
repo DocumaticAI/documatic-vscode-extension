@@ -105,7 +105,7 @@ let getDocumaticData = async () => {
 			if (projectForFolder) {
 				foldersFromDocumatic.push(folder);
 				projectForFolder.folder = folder;
-				objectSummaries[folder.uri.path] = (await globalAxios.get(`/project/${projectForFolder.id}/summaries`)).data;
+				objectSummaries[folder.uri.path] = (await globalAxios.get(`/project/${projectForFolder.id}/object/summary`)).data;
 			}
 		});
 		await globalContext.globalState.update("projects", projectsFromBackend);

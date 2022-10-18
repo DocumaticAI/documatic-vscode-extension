@@ -81,7 +81,7 @@ class Organisation extends TreeItem {
 }
 
 interface RecursiveItem {
-  [key: string]: RecursiveItem | Array<string>;
+  [key: string]: RecursiveItem | Array<{title: string, snippetId: number}>;
 }
 
 class FolderItem extends TreeItem {
@@ -104,12 +104,12 @@ class FolderItem extends TreeItem {
 }
 
 class FileItem extends TreeItem {
-  childObjects: string[];
+  childObjects: {title: string, snippetId: number}[];
   projectId: number;
   path: string;
   constructor(
     name: string,
-    childObjects: string[],
+    childObjects: {title: string, snippetId: number}[],
     public readonly collapsibleState: TreeItemCollapsibleState,
     projectId: number,
     path: string
@@ -123,10 +123,12 @@ class FileItem extends TreeItem {
 }
 
 class ObjectItem extends TreeItem {
+  snippetId: number;
   projectId: number;
   path: string;
   constructor(
     name: string,
+    snippetId: number,
     public readonly collapsibleState: TreeItemCollapsibleState,
     projectId?: number,
     path?: string
@@ -135,6 +137,7 @@ class ObjectItem extends TreeItem {
     this.iconPath = new ThemeIcon("symbol-object");
     this.tooltip = `${projectId}-${path}`;
     this.label = name ?? "";
+    this.snippetId = snippetId;
     this.projectId = projectId ?? 0;
     this.path = path ?? "";
   }
@@ -249,7 +252,7 @@ export class OrganisationsTreeDataProvider
           location: vscode.ProgressLocation.Notification,
         },
         async (progress) => {
-          const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof element.label === "string" ? element.label : "")}`)).data;
+          const snippetFromBackend = (await globalAxios.get(`/snippet/${element.snippetId}?full=true`)).data;
           console.log("got the file", snippetFromBackend);
           // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
 
@@ -320,7 +323,7 @@ export class OrganisationsTreeDataProvider
         );
       } else if (element instanceof Project) {
         let existingObjectList:
-          | { [key: number]: { [key: string]: string[] } }
+          | { [key: number]: { [key: string]: {title: string, snippetId: number}[] } }
           | undefined = await globalContext.globalState.get("objects_lists");
 
         let objects;
@@ -404,7 +407,7 @@ export class OrganisationsTreeDataProvider
   }
 
   generateTreeFromObjects(
-    objects: { [key: string]: string[] | RecursiveItem },
+    objects: { [key: string]: {title: string, snippetId: number}[] | RecursiveItem },
     projectId: number,
     path: string
   ) {
@@ -439,10 +442,10 @@ export class OrganisationsTreeDataProvider
     });
   }
 
-  getListfromObjects(objects: string[], projectId: number, path: string) {
+  getListfromObjects(objects: {title: string, snippetId: number}[], projectId: number, path: string) {
     return objects.map(
       (obj) =>
-        new ObjectItem(obj, TreeItemCollapsibleState.None, projectId, path)
+        new ObjectItem(obj.title, obj.snippetId, TreeItemCollapsibleState.None, projectId, path)
     );
   }
 }
