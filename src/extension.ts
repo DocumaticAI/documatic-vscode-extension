@@ -87,7 +87,8 @@ let getDocumaticData = async () => {
 		baseURL: apiURL,
 		headers: {
 			"authorization": `Bearer ${token}`,
-			"userAgent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)"
+			// eslint-disable-next-line @typescript-eslint/naming-convention
+			"User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)"
 		}
 	});
 	try {
