@@ -86,7 +86,8 @@ let getDocumaticData = async () => {
 	globalAxios = axios.create({
 		baseURL: apiURL,
 		headers: {
-			"authorization": `Bearer ${token}`
+			"authorization": `Bearer ${token}`,
+			"userAgent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)"
 		}
 	});
 	try {
@@ -115,6 +116,7 @@ let getDocumaticData = async () => {
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true);
 		
 	} catch (error) {
+		console.log(error);
 		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again");
 		globalContext.secrets.delete("token");
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
