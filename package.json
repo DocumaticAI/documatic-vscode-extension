@@ -4,6 +4,7 @@
   "description": "Connect with Documatic right from VSCode",
   "version": "0.0.1",
   "publisher": "documatic",
+  "icon": "resources/icons/symbol.png",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -49,7 +50,7 @@
         {
           "id": "documatic",
           "title": "Documatic",
-          "icon": "src/assets/img/symbol.svg"
+          "icon": "resources/icons/symbol.png"
         }
       ]
     },
