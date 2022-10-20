@@ -94,12 +94,12 @@
         "documatic.platformURL": {
           "type": "string",
           "default": "https://app.documatic.com",
-          "description": "Platform URL for your documatic instance. Do not change this unless the Documatic team asks you of it"
+          "description": "Platform URL for your documatic instance. Do not change this unless the Documatic team asks you of it.\nDefault Value: https://app.documatic.com"
         },
         "documatic.apiURL": {
           "type": "string",
           "default": "https://api.documatic.com",
-          "description": "API URL for your documatic instance. Do not change this unless the Documatic team asks you of it"
+          "description": "API URL for your documatic instance. Do not change this unless the Documatic team asks you of it.\nDefault Value: https://api.documatic.com"
         }
       }
     }
