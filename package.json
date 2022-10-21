@@ -85,6 +85,11 @@
           "command": "documatic.refreshDocumaticInfoFromStore",
           "when": "view =~ /^documatic/",
           "group": "navigation"
+        },
+        {
+          "command": "documatic.showSearchBox",
+          "when": "view =~ /^documatic/",
+          "group": "navigation"
         }
       ]
     },
