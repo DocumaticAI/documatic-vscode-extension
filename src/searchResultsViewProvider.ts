@@ -146,7 +146,7 @@ export class ResultsOverviewPanel extends WebviewBase {
         <div class="panel-outer">
         <div class="panel">
             <div class="panel-header"><h4><a href="${searchResult.codebase.url}"><span class="icon"><i class="codicon codicon-github"></i></span> ${searchResult.codebase.title}</a></h4> <a href="${codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version)}">${searchResult.snippet.filePath}</a>
-            <button onclick="openSearchResult(${Number(searchResult.snippet.snippetId)}, '${searchResult.snippet.filePath.toString().replace('"','\"').replace("'","\'")}')">View</button>
+            <button onclick="openSearchResult(${Number(searchResult.snippet.snippetId)}, '${searchResult.snippet.filePath.toString().replace('"','\"').replace("'","\'")}')" class="viewSnippetBtn">View</button>
             </div>
             <div class="panel-body">
                 <blockquote>${searchResult.snippet.summary}</blockquote>

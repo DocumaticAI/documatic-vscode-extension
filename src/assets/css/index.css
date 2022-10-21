@@ -459,3 +459,10 @@ body .panel .panel-header {
     max-height: 500vh;
     transition: max-height 0.2s ease-in-out;
 }
+
+.viewSnippetBtn {
+    margin-left: auto;
+    border: 1px solid #2DD4BF;
+    border-bottom-width: 3px;
+
+}
