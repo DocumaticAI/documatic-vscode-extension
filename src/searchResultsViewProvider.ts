@@ -24,11 +24,13 @@ export class ResultsOverviewPanel extends WebviewBase {
 	protected readonly _panel: vscode.WebviewPanel;
 	protected _scrollPosition = { x: 0, y: 0 };
     public extensionUri: vscode.Uri;
+    static searchTerm: string;
 
     public static async createOrShow(
         extensionUri: vscode.Uri,
         toTheSide: Boolean = false,
-        searchResults: any
+        searchResults: any,
+        searchInputValue: string
     ) {
         // If we already have a panel, show it.
 		// Otherwise, create a new panel.
@@ -46,11 +48,12 @@ export class ResultsOverviewPanel extends WebviewBase {
 			ResultsOverviewPanel.currentPanel = new ResultsOverviewPanel(
 				extensionUri,
                 activeColumn,
-                "Search Results on so and so",
+                `Search Results on ${searchInputValue}`,
                 []
 			);
 		}
 
+        this.searchTerm = searchInputValue;
         await ResultsOverviewPanel.currentPanel!.update(searchResults);
 
     }
@@ -104,7 +107,7 @@ export class ResultsOverviewPanel extends WebviewBase {
                 <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource} 'unsafe-inline' http: https: data:;"> -->
                 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource};">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Search so and so on Documatic</title>
+                <title>Search ${ResultsOverviewPanel.searchTerm} on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
@@ -113,7 +116,7 @@ export class ResultsOverviewPanel extends WebviewBase {
                 </head>
                 <body class="${process.platform}">
                 
-                Hello 123<br/><h3>Search so and so on Documatic</h3><hr />`;
+                <br/><h3>Search ${ResultsOverviewPanel.searchTerm} on Documatic</h3><hr />`;
 
                 const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />")
         const footerHTML = "</body></html>";

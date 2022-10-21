@@ -137,7 +137,7 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue}})).data;
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	
-	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults);
+	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults, searchInputValue);
 };
 
 
