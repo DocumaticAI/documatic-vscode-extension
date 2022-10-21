@@ -45,6 +45,14 @@
         "icon": "$(search-view-icon)"
       }
     ],
+    "keybindings": [
+      {
+        "command": "documatic.showSearchBox",
+        "key": "ctrl+k",
+        "win": "ctrl+k",
+        "mac": "cmd+k"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
