@@ -16,6 +16,7 @@
     "onCommand:documatic.showSearchBox",
     "onCommand:documatic.helloWorld",
     "onCommand:documatic.login",
+    "onCommand:documatic.clear",
     "onUri",
     "onStartupFinished"
   ],
@@ -43,7 +44,14 @@
         "title": "Search",
         "category": "Documatic",
         "icon": "$(search-view-icon)"
+      },
+      {
+        "command": "documatic.clear",
+        "title": "Clear",
+        "category": "Documatic",
+        "icon": "$(trash)"
       }
+
     ],
     "keybindings": [
       {
@@ -96,6 +104,11 @@
         },
         {
           "command": "documatic.showSearchBox",
+          "when": "view =~ /^documatic/",
+          "group": "navigation"
+        },
+        {
+          "command": "documatic.clear",
           "when": "view =~ /^documatic/",
           "group": "navigation"
         }

@@ -289,7 +289,7 @@ export class OrganisationsTreeDataProvider
           this.generateTreeFromObjects(objects, element.objId, "")
         );
       } else if (element instanceof Organisation) {
-        if (this.projects) {
+        if (this.projects && Array.isArray(this.projects)) {
           if (element.label === "Myself") {
             return Promise.resolve(this.getProjectsListFromProjects(this.projects.filter((p: ProjectDataType) => p.userId === this.profile.id)));
           }
@@ -321,7 +321,7 @@ export class OrganisationsTreeDataProvider
   }
 
   getListfromOrgs(orgs: any[]): Organisation[] {
-    if (!orgs) {
+    if (!orgs || !Array.isArray(orgs)) {
       return [];
     }
     return orgs.map(

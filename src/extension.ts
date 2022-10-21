@@ -52,7 +52,19 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.withProgress({ cancellable: false, title: "Documatic: Search", location: vscode.ProgressLocation.Notification }, searchDocumaticHandler); 
 		}),
 
-		vscode.languages.registerHoverProvider('*', new DocumaticHoverProvider())
+		vscode.languages.registerHoverProvider('*', new DocumaticHoverProvider()),
+
+		vscode.commands.registerCommand('documatic.clear', async () => {
+			await globalContext.globalState.update("profile", {});
+			await globalContext.globalState.update("projects", {});
+			await globalContext.globalState.update("organisations", {});
+			await globalContext.globalState.update("objects_lists", {});
+			await globalContext.globalState.update("foldersFromDocumatic", {});
+			await globalContext.globalState.update("object_summaries", {});
+			await globalContext.secrets.delete("token");
+
+			vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+		})
 
 		// new DocumaticAuthenticationProvider(context)
 	];
