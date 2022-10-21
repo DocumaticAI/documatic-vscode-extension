@@ -118,7 +118,7 @@ export class ResultsOverviewPanel extends WebviewBase {
                 
                 <br/><h3>Search ${ResultsOverviewPanel.searchTerm} on Documatic</h3><hr />`;
 
-                const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />")
+                const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />");
         const footerHTML = "</body></html>";
         return headerHTML+contentHTML+footerHTML;
     } 
@@ -135,7 +135,7 @@ export class ResultsOverviewPanel extends WebviewBase {
             <div class="panel-header"><h4><a href="${searchResult.codebase.url}"><span class="icon"><i class="codicon codicon-github"></i></span> ${searchResult.codebase.title}</a></h4> <a href="${codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version)}">${searchResult.snippet.filePath}</a></div>
             <div class="panel-body">
                 <blockquote>${searchResult.snippet.summary}</blockquote>
-                <div>${highlightedHTML}</div>
+                <div class="highlightedCode">${highlightedHTML}</div>
             </div>
         </div>
         </div>
@@ -191,5 +191,5 @@ function getHighlightedString(code: string, lang: string) {
             return `<pre><code>${hljs.highlight(code.replace(/[^\s]\n[^\s]/g, '\n\n'), {language: lang, ignoreIllegals: true}).value}</code></pre>`;
         } catch (error) {}
     }
-    return `<pre><code>${hljs.highlightAuto(code).value}</code></pre>`
+    return `<pre><code>${hljs.highlightAuto(code).value}</code></pre>`;
 }

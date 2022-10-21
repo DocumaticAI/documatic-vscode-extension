@@ -449,3 +449,13 @@ body .panel .panel-header {
     border: 1px solid var(--vscode-list-inactiveSelectionBackground);
     border-top: none;
 }
+
+.highlightedCode {
+    max-height: 8em;
+    transition: max-height 0.2s ease-in-out;
+    overflow-y: hidden;
+}
+.highlightedCode:hover {
+    max-height: 500vh;
+    transition: max-height 0.2s ease-in-out;
+}
