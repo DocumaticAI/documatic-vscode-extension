@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getNonce, WebviewBase } from './sub/webviewBase';
 import hljs from 'highlight.js';
+import { openSnippetInEditor } from './common';
 
 
 export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
@@ -81,6 +82,16 @@ export class ResultsOverviewPanel extends WebviewBase {
 
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
+        this._webview.onDidReceiveMessage(
+            message => {
+                switch (message.command) {
+                    case 'openSearchResult':
+                        openSnippetInEditor(message.snippetId, message.filePath);
+                        return;
+                }
+            },
+        );
+
     }
 
 	public async update(searchResults: any): Promise<void> {
@@ -97,21 +108,23 @@ export class ResultsOverviewPanel extends WebviewBase {
         const nonce = getNonce();
         	// Get resource paths
 		const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'assets', 'css', 'index.css'));
+		const scriptsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'assets', 'js', 'index.js'));
 		const codiconsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
 		const hljsCSS = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', 'highlight.js', 'styles', [1,4].includes(vscode.window.activeColorTheme.kind) ? 'github.css' : 'github-dark.css'));
 
+        // <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource} 'unsafe-inline' http: https: data:;"> -->
+        // <meta http-equiv="Content-Security-Policy" content="default-src usnafe-inline; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource};">
         const headerHTML = `<!DOCTYPE html>
         <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource} 'unsafe-inline' http: https: data:;"> -->
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource};">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Search ${ResultsOverviewPanel.searchTerm} on Documatic</title>
+        <title>Search ${ResultsOverviewPanel.searchTerm} on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
 				<link href="${hljsCSS}" rel="stylesheet" />
+				<script src="${scriptsUri.toString()}" nonce="${nonce}" ></script>
                 
                 </head>
                 <body class="${process.platform}">
@@ -132,7 +145,9 @@ export class ResultsOverviewPanel extends WebviewBase {
         return `
         <div class="panel-outer">
         <div class="panel">
-            <div class="panel-header"><h4><a href="${searchResult.codebase.url}"><span class="icon"><i class="codicon codicon-github"></i></span> ${searchResult.codebase.title}</a></h4> <a href="${codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version)}">${searchResult.snippet.filePath}</a></div>
+            <div class="panel-header"><h4><a href="${searchResult.codebase.url}"><span class="icon"><i class="codicon codicon-github"></i></span> ${searchResult.codebase.title}</a></h4> <a href="${codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version)}">${searchResult.snippet.filePath}</a>
+            <button onclick="openSearchResult(${Number(searchResult.snippet.snippetId)}, '${searchResult.snippet.filePath.toString().replace('"','\"').replace("'","\'")}')">View</button>
+            </div>
             <div class="panel-body">
                 <blockquote>${searchResult.snippet.summary}</blockquote>
                 <div class="highlightedCode">${highlightedHTML}</div>
@@ -143,13 +158,6 @@ export class ResultsOverviewPanel extends WebviewBase {
     }
 }
 
-
-export function CodebaseLink(codebase: {type: string, url: string, title: string} ) {
-    return `<a href="${codebase.url}" target="_blank" className="codebasePathLink">
-        <span class="icon"><i class="codicon codicon-${codebase.type.toLowerCase()}"/></span>
-        ${codebase.title}
-    </a>`;
-}
 
 
 export function codebasePathUrl(codebase: {type: string, url: string}, func: {filePath: string, startLine: number, endLine: number}, version: {version: string}) {
