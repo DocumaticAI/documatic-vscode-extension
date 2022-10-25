@@ -2,8 +2,9 @@
   "name": "documatic-search",
   "displayName": "Documatic",
   "description": "Connect with Documatic right from VSCode",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "publisher": "Documatic",
+  "icon": "resources/icons/symbol.png",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -15,6 +16,7 @@
     "onCommand:documatic.showSearchBox",
     "onCommand:documatic.helloWorld",
     "onCommand:documatic.login",
+    "onCommand:documatic.clear",
     "onUri",
     "onStartupFinished"
   ],
@@ -42,6 +44,21 @@
         "title": "Search",
         "category": "Documatic",
         "icon": "$(search-view-icon)"
+      },
+      {
+        "command": "documatic.clear",
+        "title": "Clear",
+        "category": "Documatic",
+        "icon": "$(trash)"
+      }
+
+    ],
+    "keybindings": [
+      {
+        "command": "documatic.showSearchBox",
+        "key": "ctrl+k",
+        "win": "ctrl+k",
+        "mac": "cmd+k"
       }
     ],
     "viewsContainers": {
@@ -49,7 +66,7 @@
         {
           "id": "documatic",
           "title": "Documatic",
-          "icon": "src/assets/img/symbol.svg"
+          "icon": "resources/icons/symbol.png"
         }
       ]
     },
@@ -69,6 +86,11 @@
           "id": "documatic:home_organisations",
           "when": "documatic.isLoggedIn",
           "name": "Organisations"
+        },
+        {
+          "id": "documatic:home_profile",
+          "when": "documatic.isLoggedIn",
+          "name": "Profile"
         }
       ]
     },
@@ -84,6 +106,16 @@
           "command": "documatic.refreshDocumaticInfoFromStore",
           "when": "view =~ /^documatic/",
           "group": "navigation"
+        },
+        {
+          "command": "documatic.showSearchBox",
+          "when": "view =~ /^documatic/",
+          "group": "navigation"
+        },
+        {
+          "command": "documatic.clear",
+          "when": "view =~ /^documatic/",
+          "group": "navigation"
         }
       ]
     },
@@ -93,12 +125,12 @@
         "documatic.platformURL": {
           "type": "string",
           "default": "https://app.documatic.com",
-          "description": "Platform URL for your documatic instance. Do not change this unless the Documatic team asks you of it"
+          "description": "Platform URL for your documatic instance. Do not change this unless the Documatic team asks you of it.\nDefault Value: https://app.documatic.com"
         },
         "documatic.apiURL": {
           "type": "string",
           "default": "https://api.documatic.com",
-          "description": "API URL for your documatic instance. Do not change this unless the Documatic team asks you of it"
+          "description": "API URL for your documatic instance. Do not change this unless the Documatic team asks you of it.\nDefault Value: https://api.documatic.com"
         }
       }
     }

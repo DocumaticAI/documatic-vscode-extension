@@ -5,17 +5,12 @@ import {
   TreeDataProvider,
   TreeItem,
   TreeItemCollapsibleState,
-  workspace,
-  window,
   CancellationToken,
-  languages,
 } from "vscode";
 import { globalAxios, globalContext } from "./extension";
 
 import * as vscode from "vscode";
-import { getExtensionFromPath, getLangFromExt } from "./utils";
-import { execSync } from "child_process";
-import { join } from "path";
+import { openSnippetInEditor } from "./common";
 
 class Dependency extends TreeItem {
   constructor(
@@ -48,7 +43,7 @@ class Project extends TreeItem {
   }
 }
 
-type ProjectDataType = {
+export type ProjectDataType = {
   id: number;
   title: string;
   description: string;
@@ -57,12 +52,12 @@ type ProjectDataType = {
   folder?: vscode.WorkspaceFolder;
 };
 
-type OrganisationDataType = {
+export type OrganisationDataType = {
   id: number;
   name: string;
 };
 
-type ProfileType = {
+export type ProfileType = {
   id: string;
 };
 
@@ -81,7 +76,7 @@ class Organisation extends TreeItem {
 }
 
 interface RecursiveItem {
-  [key: string]: RecursiveItem | Array<string>;
+  [key: string]: RecursiveItem | Array<{title: string, snippetId: number}>;
 }
 
 class FolderItem extends TreeItem {
@@ -104,12 +99,12 @@ class FolderItem extends TreeItem {
 }
 
 class FileItem extends TreeItem {
-  childObjects: string[];
+  childObjects: {title: string, snippetId: number}[];
   projectId: number;
   path: string;
   constructor(
     name: string,
-    childObjects: string[],
+    childObjects: {title: string, snippetId: number}[],
     public readonly collapsibleState: TreeItemCollapsibleState,
     projectId: number,
     path: string
@@ -123,10 +118,12 @@ class FileItem extends TreeItem {
 }
 
 class ObjectItem extends TreeItem {
+  snippetId: number;
   projectId: number;
   path: string;
   constructor(
     name: string,
+    snippetId: number,
     public readonly collapsibleState: TreeItemCollapsibleState,
     projectId?: number,
     path?: string
@@ -135,8 +132,35 @@ class ObjectItem extends TreeItem {
     this.iconPath = new ThemeIcon("symbol-object");
     this.tooltip = `${projectId}-${path}`;
     this.label = name ?? "";
+    this.snippetId = snippetId;
     this.projectId = projectId ?? 0;
     this.path = path ?? "";
+  }
+}
+
+export class ProfileTreeDataProvider implements TreeDataProvider<vscode.TreeItem> {
+  profile: {id: number, firstName: string, lastName: string, email: string, subscribedNewsletter: boolean} | undefined;
+  
+  constructor() {
+    this.getInitialData();
+  }
+  
+  async getInitialData() {
+    this.profile = await globalContext.globalState.get("profile");
+  }
+
+  getChildren(element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> {
+    if (!this.profile) {return []};
+    return [
+      { label: this.profile.firstName, description: "First name"},
+      { label: this.profile.lastName, description: "Last name"},
+      { label: this.profile.email, description: "Email"},
+      { label: String(this.profile.subscribedNewsletter), description: "Subscribed to Newsletter"},
+    ];    
+  }
+
+  getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
+    return element;
   }
 }
 
@@ -242,60 +266,7 @@ export class OrganisationsTreeDataProvider
     token: CancellationToken
   ): Promise<undefined> {
     if (element instanceof ObjectItem) {
-      vscode.window.withProgress(
-        {
-          cancellable: false,
-          title: "Documatic: Get snippet code",
-          location: vscode.ProgressLocation.Notification,
-        },
-        async (progress) => {
-          const snippetFromBackend = (await globalAxios.get(`/project/${element.projectId}/snippet?file=${encodeURIComponent(element.path)}&name=${encodeURIComponent(typeof element.label === "string" ? element.label : "")}`)).data;
-          console.log("got the file", snippetFromBackend);
-          // console.log(await vscode.commands.executeCommand("workbench.action.gotoSymbol", "a"))
-
-          progress.report({
-            message: "Finished fetching the snippet, checking if it's already in the workspace",
-          });
-          const folders = vscode.workspace.workspaceFolders;
-          let isOpened = false;
-          const sectionRange = new vscode.Range(new vscode.Position(snippetFromBackend.snippet.startLine, snippetFromBackend.snippet.startColumn), new vscode.Position(snippetFromBackend.snippet.endLine, snippetFromBackend.snippet.endColumn));
-          if (folders) {
-            for (const folder of folders) {
-              const currentFolderVersion = execSync(`cd ${folder.uri.path} && git rev-parse HEAD`).toString().trim();
-              if (snippetFromBackend.version.version === currentFolderVersion) {
-                const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path));
-                await window.showTextDocument(fileInFolder, { preserveFocus: true, selection: sectionRange, });
-                console.log("should have opened ", join(folder.uri.path, element.path));
-                isOpened = true;
-                break;
-              } else {
-                try {
-                  const commitDesc = execSync(`cd ${folder.uri.path} && git show --oneline -s ${snippetFromBackend.version.version}`);
-                  if (commitDesc.length > 8) {
-                    console.log("git versions are different, but found the version in the history", snippetFromBackend.version.version, currentFolderVersion, join(folder.uri.path, element.path));
-                    // TODO: show the file at that version instead of current version  
-                    const fileInFolder = await workspace.openTextDocument(join(folder.uri.path, element.path));
-                    await window.showTextDocument(fileInFolder, { preserveFocus: true, selection: sectionRange, });
-                    isOpened = true;
-                    break;
-                  }
-                } catch (error) {
-                  // Commit does not exist in the folder, so ignore this
-                }
-              }
-            }
-          }
-
-          if (!isOpened) {
-            vscode.window.showInformationMessage("File not found in workspace! Opening a temporary file with the contents from Documatic");
-            const objDoc = await workspace.openTextDocument({ content: snippetFromBackend.full_file, });
-            await window.showTextDocument(objDoc, { preserveFocus: true, selection: sectionRange, });
-            const ext = getExtensionFromPath(element.path);
-            const langId = getLangFromExt(ext);
-            await languages.setTextDocumentLanguage(objDoc, langId);
-          }
-        }
-      );
+      openSnippetInEditor(element.snippetId, element.path);
     }
     return;
   }
@@ -320,7 +291,7 @@ export class OrganisationsTreeDataProvider
         );
       } else if (element instanceof Project) {
         let existingObjectList:
-          | { [key: number]: { [key: string]: string[] } }
+          | { [key: number]: { [key: string]: {title: string, snippetId: number}[] } }
           | undefined = await globalContext.globalState.get("objects_lists");
 
         let objects;
@@ -344,7 +315,7 @@ export class OrganisationsTreeDataProvider
           this.generateTreeFromObjects(objects, element.objId, "")
         );
       } else if (element instanceof Organisation) {
-        if (this.projects) {
+        if (this.projects && Array.isArray(this.projects)) {
           if (element.label === "Myself") {
             return Promise.resolve(this.getProjectsListFromProjects(this.projects.filter((p: ProjectDataType) => p.userId === this.profile.id)));
           }
@@ -376,7 +347,7 @@ export class OrganisationsTreeDataProvider
   }
 
   getListfromOrgs(orgs: any[]): Organisation[] {
-    if (!orgs) {
+    if (!orgs || !Array.isArray(orgs)) {
       return [];
     }
     return orgs.map(
@@ -404,7 +375,7 @@ export class OrganisationsTreeDataProvider
   }
 
   generateTreeFromObjects(
-    objects: { [key: string]: string[] | RecursiveItem },
+    objects: { [key: string]: {title: string, snippetId: number}[] | RecursiveItem },
     projectId: number,
     path: string
   ) {
@@ -439,10 +410,10 @@ export class OrganisationsTreeDataProvider
     });
   }
 
-  getListfromObjects(objects: string[], projectId: number, path: string) {
+  getListfromObjects(objects: {title: string, snippetId: number}[], projectId: number, path: string) {
     return objects.map(
       (obj) =>
-        new ObjectItem(obj, TreeItemCollapsibleState.None, projectId, path)
+        new ObjectItem(obj.title, obj.snippetId, TreeItemCollapsibleState.None, projectId, path)
     );
   }
 }
