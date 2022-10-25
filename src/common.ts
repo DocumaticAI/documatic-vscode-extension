@@ -24,6 +24,7 @@ export function openSnippetInEditor(snippetId: number, filePath: string) {
           const sectionRange = new vscode.Range(new vscode.Position(snippetFromBackend.snippet.startLine, snippetFromBackend.snippet.startColumn), new vscode.Position(snippetFromBackend.snippet.endLine, snippetFromBackend.snippet.endColumn));
           if (folders) {
             for (const folder of folders) {
+              try {
               const currentFolderVersion = execSync(`cd ${folder.uri.path} && git rev-parse HEAD`).toString().trim();
               if (snippetFromBackend.version.version === currentFolderVersion) {
                 const fileInFolder = await vscode.workspace.openTextDocument(join(folder.uri.path, filePath));
@@ -45,6 +46,10 @@ export function openSnippetInEditor(snippetId: number, filePath: string) {
                 } catch (error) {
                   // Commit does not exist in the folder, so ignore this
                 }
+              }
+              } catch (error) {
+                // Folder was a part of the workspace, but it's deleted from the filesystem, and vscode still assumes that this is a valid folder and hence `cd` into the folder fails. So ignore this as well.
+                console.log(error);
               }
             }
           }
