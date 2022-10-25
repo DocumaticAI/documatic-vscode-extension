@@ -86,6 +86,11 @@
           "id": "documatic:home_organisations",
           "when": "documatic.isLoggedIn",
           "name": "Organisations"
+        },
+        {
+          "id": "documatic:home_profile",
+          "when": "documatic.isLoggedIn",
+          "name": "Profile"
         }
       ]
     },

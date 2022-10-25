@@ -138,6 +138,32 @@ class ObjectItem extends TreeItem {
   }
 }
 
+export class ProfileTreeDataProvider implements TreeDataProvider<vscode.TreeItem> {
+  profile: {id: number, firstName: string, lastName: string, email: string, subscribedNewsletter: boolean} | undefined;
+  
+  constructor() {
+    this.getInitialData();
+  }
+  
+  async getInitialData() {
+    this.profile = await globalContext.globalState.get("profile");
+  }
+
+  getChildren(element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> {
+    if (!this.profile) {return []};
+    return [
+      { label: this.profile.firstName, description: "First name"},
+      { label: this.profile.lastName, description: "Last name"},
+      { label: this.profile.email, description: "Email"},
+      { label: String(this.profile.subscribedNewsletter), description: "Subscribed to Newsletter"},
+    ];    
+  }
+
+  getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
+    return element;
+  }
+}
+
 export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
   orgs: any;
   projects: any;

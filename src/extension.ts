@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import axios, { AxiosInstance } from "axios";
-import { OrganisationDataType, OrganisationsTreeDataProvider, ProfileType, ProjectDataType, ProjectsTreeDataProvider } from './dataProviders';
+import { OrganisationDataType, OrganisationsTreeDataProvider, ProfileTreeDataProvider, ProfileType, ProjectDataType, ProjectsTreeDataProvider } from './dataProviders';
 import { ResultsOverviewPanel, SearchResultsViewProvider } from './searchResultsViewProvider';
 import { readFileSync } from 'fs';
 import path = require('path');
@@ -24,8 +24,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const orgDataProvider = new OrganisationsTreeDataProvider();
 	const projectDataProvider = new ProjectsTreeDataProvider();
+	const profileDataProvider = new ProfileTreeDataProvider();
 	vscode.window.registerTreeDataProvider('documatic:home', projectDataProvider);
 	vscode.window.registerTreeDataProvider('documatic:home_organisations', orgDataProvider);
+	vscode.window.registerTreeDataProvider('documatic:home_profile', profileDataProvider);
 
 	getDocumaticData();
 
