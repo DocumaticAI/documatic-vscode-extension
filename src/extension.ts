@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import axios, { AxiosInstance } from "axios";
-import { OrganisationsTreeDataProvider, ProjectsTreeDataProvider } from './dataProviders';
+import { OrganisationDataType, OrganisationsTreeDataProvider, ProfileType, ProjectDataType, ProjectsTreeDataProvider } from './dataProviders';
 import { ResultsOverviewPanel, SearchResultsViewProvider } from './searchResultsViewProvider';
 import { readFileSync } from 'fs';
 import path = require('path');
@@ -147,8 +147,35 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 		vscode.window.showErrorMessage("You cancelled the search!");
 		return;
 	}
-	vscode.window.showInformationMessage(`Got the search term - ${searchInputValue}`);
-	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue}})).data;
+	const projectList: ProjectDataType[] | undefined = await globalContext.globalState.get("projects");
+	if (!projectList) {
+		vscode.window.showErrorMessage("You don't have any projects to search from");
+		return;
+	}
+	const organisationsList: OrganisationDataType[] | undefined = await globalContext.globalState.get("organisations");
+	const profile: ProfileType | undefined = await globalContext.globalState.get("profile");
+
+	const selectedProject = await vscode.window.showQuickPick([
+    {projectID: undefined, label: "All projects"},
+	...projectList.map((i) => ({
+      projectID: i.id,
+      label: `$(${i.folder ? "project" : "repo"}) ${i.title}`,
+	  description: i.userId === profile?.id ? "Myself" : organisationsList?.find(o => o.id === i.organisationId)?.name,
+	  detail: i.folder
+        ? `(Open in editor as ${i.folder?.name})`
+        : undefined,
+		
+    }))],
+	{canPickMany: false, placeHolder: "Select one or all projects to search. Esc to cancel", title: "Select project to search on", matchOnDescription: true, matchOnDetail: true}
+  );
+	if (!selectedProject) {
+		vscode.window.showErrorMessage("You cancelled the project selection during search!");
+		return;
+	}
+
+
+	vscode.window.showInformationMessage(`Searching \`${searchInputValue}\` on \`${selectedProject.label}\``);
+	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue, projectId: selectedProject.projectID}})).data;
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	
 	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults, searchInputValue);

@@ -43,7 +43,7 @@ class Project extends TreeItem {
   }
 }
 
-type ProjectDataType = {
+export type ProjectDataType = {
   id: number;
   title: string;
   description: string;
@@ -52,12 +52,12 @@ type ProjectDataType = {
   folder?: vscode.WorkspaceFolder;
 };
 
-type OrganisationDataType = {
+export type OrganisationDataType = {
   id: number;
   name: string;
 };
 
-type ProfileType = {
+export type ProfileType = {
   id: string;
 };
 
