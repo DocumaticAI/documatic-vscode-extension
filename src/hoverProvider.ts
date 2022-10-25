@@ -14,14 +14,17 @@ export class DocumaticHoverProvider implements vscode.HoverProvider {
         if (summaryItem) {
             return {
                 contents: [
-                    `### From Documatic  `,
+                    `#### From Documatic  `,
                     `**Title**: ${summaryItem.title}  `,
                     summaryItem.ownerName && summaryItem.ownerEmail ? `Owner: ${summaryItem.ownerName}<${summaryItem.ownerEmail}>`: "",
-                    `**Summary**: ${summaryItem.summary}  `
+                    `**Summary**: ${summaryItem.summary ?? "Summary not found"}  `
                     ]
             };
         }
         return {
+            // contents: [
+            //     `Object not indexed on Documatic`
+            // ]
             contents: []
         };
     }

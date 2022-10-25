@@ -107,10 +107,10 @@ export class ResultsOverviewPanel extends WebviewBase {
     protected getHtmlForWebview(searchResults: any) {
         const nonce = getNonce();
         	// Get resource paths
-		const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'assets', 'css', 'index.css'));
-		const scriptsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'src', 'assets', 'js', 'index.js'));
-		const codiconsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
-		const hljsCSS = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules', 'highlight.js', 'styles', [1,4].includes(vscode.window.activeColorTheme.kind) ? 'github.css' : 'github-dark.css'));
+		const styleUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'resources', 'assets', 'css', 'index.css'));
+		const scriptsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'resources', 'assets', 'js', 'index.js'));
+		const codiconsUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'resources', 'assets', 'css', 'codicon.css'));
+		const hljsCSS = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'resources', 'assets', 'css', [1,4].includes(vscode.window.activeColorTheme.kind) ? 'github.css' : 'github-dark.css'));
 
         // <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource} 'unsafe-inline' http: https: data:;"> -->
         // <meta http-equiv="Content-Security-Policy" content="default-src usnafe-inline; script-src 'nonce-${nonce}'; font-src ${this._panel.webview.cspSource}; style-src ${this._panel.webview.cspSource};">
@@ -118,7 +118,7 @@ export class ResultsOverviewPanel extends WebviewBase {
         <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Search ${ResultsOverviewPanel.searchTerm} on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
