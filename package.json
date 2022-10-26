@@ -2,8 +2,8 @@
   "name": "documatic",
   "displayName": "Documatic",
   "description": "Connect with Documatic right from VSCode",
-  "version": "0.1.1",
-  "publisher": "documatic",
+  "version": "0.2.0",
+  "publisher": "Documatic",
   "icon": "resources/icons/symbol.png",
   "engines": {
     "vscode": "^1.71.0"
