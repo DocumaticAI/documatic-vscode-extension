@@ -14,7 +14,7 @@ so you don't have to know the exact keywords
 you're looking for!
 
 
-![Demo of running a search on the Documatic extension](./resources/assets/vscode-demo.gif)
+<!---![Demo of running a search on the Documatic extension](./resources/assets/vscode-demo.gif)--->
 
 ## Features
 
