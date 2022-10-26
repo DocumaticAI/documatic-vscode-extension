@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "publisher": "Documatic",
   "icon": "resources/icons/symbol.png",
+  "homepage": "https://github.com/DocumaticAI/documatic-vscode/blob/main/README.md",
+  "bugs": {
+    "url": "https://github.com/DocumaticAI/documatic-vscode/issues",
+    "email": "shane@documatic.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DocumaticAI/documatic-vscode.git"
+  },
   "engines": {
     "vscode": "^1.71.0"
   },
