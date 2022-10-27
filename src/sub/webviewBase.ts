@@ -126,7 +126,7 @@ export class WebviewViewBase extends WebviewBase {
 		if (this._view) {
 			this._view.show();
 		} else {
-			vscode.commands.executeCommand(`${this.viewType}.focus`)
+			vscode.commands.executeCommand(`${this.viewType}.focus`);
 		}
 	}
 }
