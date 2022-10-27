@@ -12,7 +12,7 @@ export let globalContext: vscode.ExtensionContext;
 export let globalAxios: AxiosInstance;
 const apiURL: string = vscode.workspace.getConfiguration("documatic").get("apiURL") ?? "https://api.documatic.com/";
 const platformURL: string = vscode.workspace.getConfiguration("documatic").get("platformURL") ?? "https://app.documatic.com/";
-export const zeroResultsMsg = "0 results received for your search. This may be because your codebase has not finished indexing. Please wait a few minutes and try again. If this persists, please contact info@documatic.com"
+export const zeroResultsMsg = "0 results received for your search. This may be because your codebase has not finished indexing. Please wait a few minutes and try again. If this persists, please contact info@documatic.com";
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -159,7 +159,7 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	const profile: ProfileType | undefined = await globalContext.globalState.get("profile");
 
 	const selectedProject = await vscode.window.showQuickPick([
-    {projectID: undefined, label: "All projects"},
+    {projectID: undefined, label: "$(zap) All projects"},
 	...projectList.map((i) => ({
       projectID: i.id,
       label: `$(${i.folder ? "project" : "repo"}) ${i.title}`,
@@ -177,14 +177,18 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	}
 
 
-	vscode.window.showInformationMessage(`Searching \`${searchInputValue}\` on \`${selectedProject.label}\``);
+	vscode.window.showInformationMessage(`Searching \`${searchInputValue}\` on \`${selectedProject.label.split(" ").slice(1).join(" ")}\``);
 	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue, projectId: selectedProject.projectID}})).data;
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	if (searchResults.length === 0) {
 		vscode.window.showErrorMessage(zeroResultsMsg, {modal: true});
 	}
+	
+	const side = vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn
+	? vscode.window.activeTextEditor.viewColumn
+	: vscode.ViewColumn.One;
 
-	await ResultsOverviewPanel.createOrShow(globalContext.extensionUri, false, searchResults, searchInputValue);
+	new ResultsOverviewPanel(globalContext.extensionUri, side, searchInputValue, searchResults); 
 };
 
 

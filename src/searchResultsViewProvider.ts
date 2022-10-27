@@ -21,48 +21,16 @@ export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
 export class ResultsOverviewPanel extends WebviewBase {
     public static ID: string = "documatic.searchResults";
     
-    protected static readonly _viewType: string = 'Search results on blah blah';
-    public static currentPanel?: ResultsOverviewPanel;
+    protected readonly _viewType: string = 'Search results on blah blah';
+    public currentPanel?: ResultsOverviewPanel;
 	protected _panel: vscode.WebviewPanel;
 	protected _scrollPosition = { x: 0, y: 0 };
     public extensionUri: vscode.Uri;
-    static searchTerm: string;
+    public searchTerm: string;
     public title: string;
     public column: vscode.ViewColumn;
 
-    public static async createOrShow(
-        extensionUri: vscode.Uri,
-        toTheSide: Boolean = false,
-        searchResults: any,
-        searchInputValue: string
-    ) {
-        // If we already have a panel, show it.
-		// Otherwise, create a new panel.
-
-        let activeColumn = toTheSide
-        ? vscode.ViewColumn.Beside
-        : vscode.window.activeTextEditor
-            ? vscode.window.activeTextEditor.viewColumn
-            : vscode.ViewColumn.One;
-        activeColumn = activeColumn ?? vscode.ViewColumn.One;
-
-		if (ResultsOverviewPanel.currentPanel) {
-			ResultsOverviewPanel.currentPanel._panel.reveal(vscode.window.activeTextEditor?.viewColumn, true);
-		} else {
-			ResultsOverviewPanel.currentPanel = new ResultsOverviewPanel(
-				extensionUri,
-                activeColumn,
-                `Search Results on ${searchInputValue}`,
-                []
-			);
-		}
-
-        this.searchTerm = searchInputValue;
-        await ResultsOverviewPanel.currentPanel!.update(searchResults);
-
-    }
-
-    protected constructor(
+    constructor(
         private readonly _extensionUri: vscode.Uri,
         column: vscode.ViewColumn,
         title: string,
@@ -71,11 +39,12 @@ export class ResultsOverviewPanel extends WebviewBase {
         super();
 
         this.extensionUri = _extensionUri;
-        this.title = title;
         this.column = column;
+        this.searchTerm = title;
+        this.title = `Search Results on ${title}`;
 
 		// Create and show a new webview panel
-		this._panel = vscode.window.createWebviewPanel(ResultsOverviewPanel._viewType, this.title, this.column, {
+		this._panel = vscode.window.createWebviewPanel(this._viewType, this.title, this.column, {
 			// Enable javascript in the webview
 			enableScripts: true,
 			retainContextWhenHidden: true,
@@ -97,19 +66,23 @@ export class ResultsOverviewPanel extends WebviewBase {
             },
         );
 
+        
+		if (this.currentPanel) {
+			this.currentPanel._panel.reveal(vscode.window.activeTextEditor?.viewColumn, true);
+		} else {
+			this.currentPanel = this;
+		}
+
+        this.searchTerm = this.searchTerm;
+        this.currentPanel!.update(searchResults);
+
+
     }
 
 	public async update(searchResults: any): Promise<void> {
 		this._postMessage({
 			command: 'set-scroll',
 			scrollPosition: this._scrollPosition,
-		});
-
-        this._panel = vscode.window.createWebviewPanel(ResultsOverviewPanel._viewType, this.title, this.column, {
-			// Enable javascript in the webview
-			enableScripts: true,
-			retainContextWhenHidden: true,
-
 		});
 
 		this._panel.webview.html = this.getHtmlForWebview(searchResults);
@@ -131,7 +104,7 @@ export class ResultsOverviewPanel extends WebviewBase {
             <head>
                 <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Search ${ResultsOverviewPanel.searchTerm} on Documatic</title>
+        <title>Search ${this.searchTerm} on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
@@ -141,7 +114,7 @@ export class ResultsOverviewPanel extends WebviewBase {
                 </head>
                 <body class="${process.platform}">
                 
-                <br/><h3>Search ${ResultsOverviewPanel.searchTerm} on Documatic</h3><hr />`;
+                <br/><h3>Search ${this.searchTerm} on Documatic</h3><hr />`;
 
                 const contentHTML = searchResults.length > 0 ? searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />") : `<blockquote>${zeroResultsMsg.replaceAll(". ", ".<br />")}</blockquote>`;
         const footerHTML = "</body></html>";
