@@ -42,7 +42,7 @@ for the codebase to become searchable;
 if you're not getting results,
 wait a few minutes.
 If this persists,
-please contact `info@documatic.com`
+please contact `shane@documatic.com`
 for help.
 **N.b.** You currently cannot create
 Documatic projects via the VSCode extension.
@@ -121,4 +121,4 @@ ask [Documatic].
 
 
 [documatic]: https://www.documatic.com
-[documatic-app]: app.documatic.com
+[documatic-app]: https://app.documatic.com
