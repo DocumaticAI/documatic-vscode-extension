@@ -91,6 +91,8 @@ please contact `shane@documatic.com`.
 
 * Your signed in session can time out on the extension without the UI updating
   * As a temporary work around, clearing your VSCode session can reset this
+* On some VSCode versions, an error occurs when running a search
+  * Please update your VSCode and restart your system
 
 ## Changelog
 
