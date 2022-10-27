@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getNonce, WebviewBase } from './sub/webviewBase';
 import hljs from 'highlight.js';
 import { openSnippetInEditor } from './common';
+import { zeroResultsMsg } from './extension';
 
 
 export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
@@ -131,7 +132,7 @@ export class ResultsOverviewPanel extends WebviewBase {
                 
                 <br/><h3>Search ${ResultsOverviewPanel.searchTerm} on Documatic</h3><hr />`;
 
-                const contentHTML = searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />");
+                const contentHTML = searchResults.length > 0 ? searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />") : `<blockquote>${zeroResultsMsg.replaceAll(". ", ".<br />")}</blockquote>`;
         const footerHTML = "</body></html>";
         return headerHTML+contentHTML+footerHTML;
     } 
