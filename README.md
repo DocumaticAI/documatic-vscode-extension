@@ -18,24 +18,34 @@ you're looking for!
 
 ## Features
 
-The primary functionality of the Documatic VSCode extension is codesearch.
-[Documatic's][documatic] codesearch product uses AI to link your questions
-to snippets of code,
-so you can ask natural,
-normal questions
-about your codebase.
+* AI-powered codesearch
+  * Search your codebases using natural questions
+
 See how to use the extension [below](#using-the-extension).
 
 
 ## Requirements
 
-To use this extension,
-you must have an active [Documatic] account.
+**IMPORTANT:** To use this extension,
+you **must have an active [Documatic] account**.
 Sign up for an account [here][documatic-app].
 If you're on the waitlist
 and would like to get your team onboarded,
 please contact `shane@documatic.com`
 to arrange a call.
+
+On your Documatic account,
+you must have indexed projects.
+If you've very recently indexed a new codebase,
+it takes a couple of minutes
+for the codebase to become searchable;
+if you're not getting results,
+wait a few minutes.
+If this persists,
+please contact `info@documatic.com`
+for help.
+**N.b.** You currently cannot create
+Documatic projects via the VSCode extension.
 
 ## Using the extension
 
@@ -67,8 +77,22 @@ To run a search:
   * If the project is not in your workspace, a copy of the code file will be created and opened
 
 
+**N.b.** The version of the codebase indexed for search
+is the main/master branch at time of indexing.
+**Documatic does not index a live version of your codebase**.
+The extension still works on other branches,
+however changing branches or making updates to the code
+may result in discrepencies between line numbers
+when navigating to the code.
+Documatic reindexes your codebases regularly.
+If you would like non-main branches to be indexed
+for your team,
+please contact `shane@documatic.com`.
+
 ## Known Issues
 
+* If you close the search results page, it will not appear when making a new search
+  * While we fix this, keep the search results page open between searches
 * Your signed in session can time out on the extension without the UI updating
   * As a temporary work around, clearing your VSCode session can reset this
 
@@ -77,6 +101,10 @@ To run a search:
 For full release notes,
 please see the complete changelog
 in the repository.
+
+### 0.2.1
+
+Fixed a sign-in issue.
 
 ### 0.2.0
 

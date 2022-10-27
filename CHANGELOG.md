@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## 0.2.1
+
+### Fixed
+
+* Issue on vscode "sign in" when not already logged into the platform
+  * If you're not logged into the platform, clicking sign in on vscode will now prompt you to log in
+
 ## 0.2.0
 
 Initial release
