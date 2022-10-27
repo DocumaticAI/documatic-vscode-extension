@@ -89,8 +89,6 @@ please contact `shane@documatic.com`.
 
 ## Known Issues
 
-* If you close the search results page, it will not appear when making a new search
-  * While we fix this, keep the search results page open between searches
 * Your signed in session can time out on the extension without the UI updating
   * As a temporary work around, clearing your VSCode session can reset this
 
