@@ -1,8 +1,8 @@
 {
   "name": "documatic",
   "displayName": "Documatic",
-  "description": "Connect with Documatic right from VSCode",
-  "version": "0.2.0",
+  "description": "Navigate through your large codebases with Documatic codesearch.",
+  "version": "0.2.1",
   "publisher": "Documatic",
   "icon": "resources/icons/symbol.png",
   "homepage": "https://github.com/DocumaticAI/documatic-vscode/blob/main/README.md",
