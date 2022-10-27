@@ -23,10 +23,12 @@ export class ResultsOverviewPanel extends WebviewBase {
     
     protected static readonly _viewType: string = 'Search results on blah blah';
     public static currentPanel?: ResultsOverviewPanel;
-	protected readonly _panel: vscode.WebviewPanel;
+	protected _panel: vscode.WebviewPanel;
 	protected _scrollPosition = { x: 0, y: 0 };
     public extensionUri: vscode.Uri;
     static searchTerm: string;
+    public title: string;
+    public column: vscode.ViewColumn;
 
     public static async createOrShow(
         extensionUri: vscode.Uri,
@@ -69,9 +71,11 @@ export class ResultsOverviewPanel extends WebviewBase {
         super();
 
         this.extensionUri = _extensionUri;
+        this.title = title;
+        this.column = column;
 
 		// Create and show a new webview panel
-		this._panel = vscode.window.createWebviewPanel(ResultsOverviewPanel._viewType, title, column, {
+		this._panel = vscode.window.createWebviewPanel(ResultsOverviewPanel._viewType, this.title, this.column, {
 			// Enable javascript in the webview
 			enableScripts: true,
 			retainContextWhenHidden: true,
@@ -99,6 +103,13 @@ export class ResultsOverviewPanel extends WebviewBase {
 		this._postMessage({
 			command: 'set-scroll',
 			scrollPosition: this._scrollPosition,
+		});
+
+        this._panel = vscode.window.createWebviewPanel(ResultsOverviewPanel._viewType, this.title, this.column, {
+			// Enable javascript in the webview
+			enableScripts: true,
+			retainContextWhenHidden: true,
+
 		});
 
 		this._panel.webview.html = this.getHtmlForWebview(searchResults);
