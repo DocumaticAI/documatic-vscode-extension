@@ -1,9 +1,8 @@
 # Documatic
 
 This extension brings [Documatic] to VSCode:
-search code in seconds with our powerful,
-AI-driven search,
-and get insights into your code snippets -
+quickly search your large codebases
+using simple queries -
 what does it do?
 what dependencies does it have?
 And more.
@@ -18,11 +17,10 @@ you're looking for!
 
 ## Features
 
-* AI-powered codesearch
+* Codesearch
   * Search your codebases using natural questions
 
 See how to use the extension [below](#using-the-extension).
-
 
 ## Requirements
 
@@ -114,7 +112,7 @@ Comes with codesearch and code snippet analysis.
 
 ## About Documatic
 
-Documatic is an AI-driven startup
+Documatic is a startup
 building tools to help you better understand your code.\
 Don't ask your boss,
 ask [Documatic].

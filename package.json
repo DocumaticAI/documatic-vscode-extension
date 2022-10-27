@@ -1,7 +1,7 @@
 {
   "name": "documatic",
   "displayName": "Documatic",
-  "description": "Navigate your codebase with Documatic's AI-powered search.",
+  "description": "Navigate through your large codebases with Documatic codesearch.",
   "version": "0.2.1",
   "publisher": "Documatic",
   "icon": "resources/icons/symbol.png",
