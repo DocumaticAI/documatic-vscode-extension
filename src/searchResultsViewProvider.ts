@@ -3,6 +3,7 @@ import { getNonce, WebviewBase } from './sub/webviewBase';
 import hljs from 'highlight.js';
 import { openSnippetInEditor } from './common';
 import { zeroResultsMsg } from './extension';
+import { encodeText } from './utils';
 
 
 export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
@@ -104,7 +105,7 @@ export class ResultsOverviewPanel extends WebviewBase {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Search ${encodeURI(this.searchTerm)} on Documatic</title>
+                <title>Search ${encodeText(this.searchTerm)} on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
@@ -112,9 +113,9 @@ export class ResultsOverviewPanel extends WebviewBase {
 				<script src="${scriptsUri.toString()}" nonce="${nonce}" ></script>
 
                 </head>
-                <body class="${encodeURI(process.platform)}">
+                <body class="${encodeText(process.platform)}">
                 
-                <br/><h3>Search ${encodeURI(this.searchTerm)} on Documatic</h3><hr />`;
+                <br/><h3>Search ${encodeText(this.searchTerm)} on Documatic</h3><hr />`;
 
                 const contentHTML = searchResults.length > 0 ? searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />") : `<blockquote>${zeroResultsMsg.replaceAll(". ", ".<br />")}</blockquote>`;
         const footerHTML = "</body></html>";
@@ -123,18 +124,18 @@ export class ResultsOverviewPanel extends WebviewBase {
 
     protected getHTMLcontentForSearchResult(searchResult: any) {
         
-        const lang = encodeURI(normalizeHighlightLang(searchResult.snippet.filePath.split(".").slice(-1).join()));
+        const lang = encodeText(normalizeHighlightLang(searchResult.snippet.filePath.split(".").slice(-1).join()));
         const highlightedHTML = getHighlightedString(searchResult.code, lang);
 
 
         return `
         <div class="panel-outer">
         <div class="panel">
-            <div class="panel-header"><h4><a href="${encodeURI(searchResult.codebase.url)}"><span class="icon"><i class="codicon codicon-github"></i></span> ${encodeURI(searchResult.codebase.title)}</a></h4> <a href="${encodeURI(codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version))}">${encodeURI(searchResult.snippet.filePath)}</a>
-            <button onclick="openSearchResult(${Number(encodeURI(searchResult.snippet.snippetId))}, '${encodeURI(searchResult.snippet.filePath).toString().replace('"','\"').replace("'","\'")}')" class="viewSnippetBtn">View</button>
+            <div class="panel-header"><h4><a href="${encodeText(searchResult.codebase.url)}"><span class="icon"><i class="codicon codicon-github"></i></span> ${encodeText(searchResult.codebase.title)}</a></h4> <a href="${encodeText(codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version))}">${encodeText(searchResult.snippet.filePath)}</a>
+            <button onclick="openSearchResult(${Number(encodeText(searchResult.snippet.snippetId))}, '${encodeText(searchResult.snippet.filePath).toString().replace('"','\"').replace("'","\'")}')" class="viewSnippetBtn">View</button>
             </div>
             <div class="panel-body">
-                <blockquote>${searchResult.snippet.summary.length > 5 ? encodeURI(searchResult.snippet.summary) : "No summary on this object yet."}</blockquote>
+                <blockquote>${searchResult.snippet.summary.length > 5 ? encodeText(searchResult.snippet.summary) : "No summary on this object yet."}</blockquote>
                 <div class="highlightedCode">${highlightedHTML}</div>
             </div>
         </div>
@@ -148,9 +149,9 @@ export class ResultsOverviewPanel extends WebviewBase {
 export function codebasePathUrl(codebase: {type: string, url: string}, func: {filePath: string, startLine: number, endLine: number}, version: {version: string}) {
     switch (codebase.type) {
         case "GITHUB":
-            return `${encodeURI(codebase.url)}/blob/${encodeURI(version.version)}/${encodeURI(func.filePath)}#L${func.startLine}-L${func.endLine}`;
+            return `${encodeText(codebase.url)}/blob/${encodeText(version.version)}/${encodeText(func.filePath)}#L${func.startLine}-L${func.endLine}`;
         case "BITBUCKET":
-            return `${encodeURI(codebase.url)}/src/${encodeURI(version.version)}/${encodeURI(func.filePath)}#lines-${func.startLine}`;
+            return `${encodeText(codebase.url)}/src/${encodeText(version.version)}/${encodeText(func.filePath)}#lines-${func.startLine}`;
         default:
             return "#";
     }
