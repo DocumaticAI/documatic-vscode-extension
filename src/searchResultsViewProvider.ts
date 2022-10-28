@@ -3,7 +3,7 @@ import { getNonce, WebviewBase } from './sub/webviewBase';
 import hljs from 'highlight.js';
 import { openSnippetInEditor } from './common';
 import { zeroResultsMsg } from './extension';
-import { encodeText } from './utils';
+import { htmlEncode, jsEscape } from './utils';
 
 
 export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
@@ -105,7 +105,7 @@ export class ResultsOverviewPanel extends WebviewBase {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Search ${encodeText(this.searchTerm)} on Documatic</title>
+                <title>Search ${htmlEncode(this.searchTerm)} on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
@@ -113,9 +113,9 @@ export class ResultsOverviewPanel extends WebviewBase {
 				<script src="${scriptsUri.toString()}" nonce="${nonce}" ></script>
 
                 </head>
-                <body class="${encodeText(process.platform)}">
+                <body class="${jsEscape(process.platform)}">
                 
-                <br/><h3>Search ${encodeText(this.searchTerm)} on Documatic</h3><hr />`;
+                <br/><h3>Search ${htmlEncode(this.searchTerm)} on Documatic</h3><hr />`;
 
                 const contentHTML = searchResults.length > 0 ? searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />") : `<blockquote>${zeroResultsMsg.replaceAll(". ", ".<br />")}</blockquote>`;
         const footerHTML = "</body></html>";
@@ -124,18 +124,18 @@ export class ResultsOverviewPanel extends WebviewBase {
 
     protected getHTMLcontentForSearchResult(searchResult: any) {
         
-        const lang = encodeText(normalizeHighlightLang(searchResult.snippet.filePath.split(".").slice(-1).join()));
+        const lang = jsEscape(normalizeHighlightLang(searchResult.snippet.filePath.split(".").slice(-1).join()));
         const highlightedHTML = getHighlightedString(searchResult.code, lang);
 
 
         return `
         <div class="panel-outer">
         <div class="panel">
-            <div class="panel-header"><h4><a href="${encodeText(searchResult.codebase.url)}"><span class="icon"><i class="codicon codicon-github"></i></span> ${encodeText(searchResult.codebase.title)}</a></h4> <a href="${encodeText(codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version))}">${encodeText(searchResult.snippet.filePath)}</a>
-            <button onclick="openSearchResult(${Number(encodeText(searchResult.snippet.snippetId))}, '${encodeText(searchResult.snippet.filePath).toString().replace('"','\"').replace("'","\'")}')" class="viewSnippetBtn">View</button>
+            <div class="panel-header"><h4><a href="${jsEscape(searchResult.codebase.url)}"><span class="icon"><i class="codicon codicon-github"></i></span> ${htmlEncode(searchResult.codebase.title)}</a></h4> <a href="${jsEscape(codebasePathUrl(searchResult.codebase, searchResult.snippet, searchResult.version))}">${htmlEncode(searchResult.snippet.filePath)}</a>
+            <button onclick="openSearchResult(${Number(jsEscape(searchResult.snippet.snippetId))}, '${jsEscape(searchResult.snippet.filePath).toString().replace('"','\"').replace("'","\'")}')" class="viewSnippetBtn">View</button>
             </div>
             <div class="panel-body">
-                <blockquote>${searchResult.snippet.summary.length > 5 ? encodeText(searchResult.snippet.summary) : "No summary on this object yet."}</blockquote>
+                <blockquote>${searchResult.snippet.summary.length > 5 ? htmlEncode(searchResult.snippet.summary) : "No summary on this object yet."}</blockquote>
                 <div class="highlightedCode">${highlightedHTML}</div>
             </div>
         </div>
@@ -149,9 +149,9 @@ export class ResultsOverviewPanel extends WebviewBase {
 export function codebasePathUrl(codebase: {type: string, url: string}, func: {filePath: string, startLine: number, endLine: number}, version: {version: string}) {
     switch (codebase.type) {
         case "GITHUB":
-            return `${encodeText(codebase.url)}/blob/${encodeText(version.version)}/${encodeText(func.filePath)}#L${func.startLine}-L${func.endLine}`;
+            return `${jsEscape(codebase.url)}/blob/${jsEscape(version.version)}/${jsEscape(func.filePath)}#L${func.startLine}-L${func.endLine}`;
         case "BITBUCKET":
-            return `${encodeText(codebase.url)}/src/${encodeText(version.version)}/${encodeText(func.filePath)}#lines-${func.startLine}`;
+            return `${jsEscape(codebase.url)}/src/${jsEscape(version.version)}/${jsEscape(func.filePath)}#lines-${func.startLine}`;
         default:
             return "#";
     }
