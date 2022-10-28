@@ -134,7 +134,7 @@ export class ResultsOverviewPanel extends WebviewBase {
             <button onclick="openSearchResult(${Number(searchResult.snippet.snippetId)}, '${searchResult.snippet.filePath.toString().replace('"','\"').replace("'","\'")}')" class="viewSnippetBtn">View</button>
             </div>
             <div class="panel-body">
-                <blockquote>${searchResult.snippet.summary}</blockquote>
+                <blockquote>${searchResult.snippet.summary.length > 5 ? searchResult.snippet.summary : "No summary on this object yet."}</blockquote>
                 <div class="highlightedCode">${highlightedHTML}</div>
             </div>
         </div>
