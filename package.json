@@ -113,17 +113,17 @@
       "view/title": [
         {
           "command": "documatic.refreshDocumaticInfoFromStore",
-          "when": "view =~ /^documatic/",
+          "when": "documatic.isLoggedIn && view =~ /^documatic/",
           "group": "navigation"
         },
         {
           "command": "documatic.showSearchBox",
-          "when": "view =~ /^documatic/",
+          "when": "documatic.isLoggedIn && view =~ /^documatic/",
           "group": "navigation"
         },
         {
           "command": "documatic.clear",
-          "when": "view =~ /^documatic/",
+          "when": "documatic.isLoggedIn && view =~ /^documatic/",
           "group": "navigation"
         }
       ]
