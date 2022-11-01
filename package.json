@@ -56,9 +56,9 @@
       },
       {
         "command": "documatic.clear",
-        "title": "Clear",
+        "title": "Sign Out",
         "category": "Documatic",
-        "icon": "$(trash)"
+        "icon": "$(sign-out)"
       }
 
     ],
