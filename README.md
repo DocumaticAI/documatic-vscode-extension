@@ -20,7 +20,8 @@ you're looking for!
 * Codesearch
   * Search your codebases using natural questions
 
-See how to use the extension [below](#using-the-extension).
+See [requirements](#requirements) for using the extension
+and a guide on how to use the extension [below](#using-the-extension).
 
 ## Requirements
 
@@ -86,6 +87,29 @@ Documatic reindexes your codebases regularly.
 If you would like non-main branches to be indexed
 for your team,
 please contact `shane@documatic.com`.
+
+### Refreshing your account
+
+If you logged into Documatic on the VSCode app
+and subsequently added more projects/organisations,
+you will need to fresh your connection.
+You can do this by pressing the `reload/refresh` icon
+at the top of the Documatic panel,
+or alternatively by running the command:
+
+1. `ctrl+shift+p` to bring up the command panel
+2. Enter the `Documatic: Refresh` command
+
+### Signing out
+
+If you need to sign out of your Documatic account
+on VSCode,
+press the `trash` icon
+at the top of the Documatic panel,
+or alternatively by running the command:
+
+1. `ctrl+shift+p` to bring up the command panel
+2. Enter the `Documatic: Clear` command
 
 ## Known Issues
 
