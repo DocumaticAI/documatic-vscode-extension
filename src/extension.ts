@@ -46,7 +46,8 @@ export function activate(context: vscode.ExtensionContext) {
 			// vscode.env.openExternal(vscode.Uri.parse("https://app.documatic.com/vscode/login"))
 			vscode.env.openExternal(vscode.Uri.parse(`${platformURL}/vscode/login`));
 		}),
-		vscode.commands.registerCommand('documatic.refreshDocumaticInfoFromStore', () => {
+		vscode.commands.registerCommand('documatic.refreshDocumaticInfoFromStore', async () => {
+			await getDocumaticData();
 			projectDataProvider.refresh();
 			orgDataProvider.refresh();
 		}),
