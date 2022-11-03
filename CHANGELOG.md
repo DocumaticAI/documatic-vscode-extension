@@ -6,6 +6,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## 0.2.2 - 03-11-2022
+
+### Changed
+
+* "Trash" icon in panel changed to "Exit" icon to clarify it logs a user out
+* Clarify steps to log out or refresh connection in README
+
+### Fixed
+
+* "Refresh" icon in Documatic panel refetches account information
+
 ## 0.2.1 - 27-10-2022
 
 ### Added
