@@ -20,7 +20,12 @@ you're looking for!
 * Codesearch
   * Search your codebases using natural questions
 
-See how to use the extension [below](#using-the-extension).
+See [requirements](#requirements) for using the extension
+and a guide on how to use the extension [below](#using-the-extension).
+Want more features?
+Open a feature request!
+See [below](#bugs-and-features)
+for more information.
 
 ## Requirements
 
@@ -87,12 +92,55 @@ If you would like non-main branches to be indexed
 for your team,
 please contact `shane@documatic.com`.
 
-## Known Issues
+### Refreshing your account
+
+If you logged into Documatic on the VSCode app
+and subsequently added more projects/organisations,
+you will need to fresh your connection.
+You can do this by pressing the `reload/refresh` icon
+at the top of the Documatic panel,
+or alternatively by running the command:
+
+1. `ctrl+shift+p` to bring up the command panel
+2. Enter the `Documatic: Refresh` command
+
+### Signing out
+
+If you need to sign out of your Documatic account
+on VSCode,
+press the `trash` icon
+at the top of the Documatic panel,
+or alternatively by running the command:
+
+1. `ctrl+shift+p` to bring up the command panel
+2. Enter the `Documatic: Clear` command
+
+## Issues and updates
+
+### Known Issues
 
 * Your signed in session can time out on the extension without the UI updating
   * As a temporary work around, clearing your VSCode session can reset this
 * On some VSCode versions, an error occurs when running a search
   * Please update your VSCode and restart your system
+
+### Bugs and features
+
+If you have found a bug you would like to report
+or if there is a feature
+you would added,
+please open an issue on the public issue tracker.
+
+### Security
+
+If you believe you have found a security vulnerability,
+please **do not post details on public channels**.
+Instead,
+please contact `security@documatic.com`
+or `shane@documatic.com`
+with details of the vulnerability.
+For more information,
+please see [SECURITY.md](./SECURITY.md).
 
 ## Changelog
 
