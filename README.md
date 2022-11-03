@@ -108,7 +108,7 @@ or alternatively by running the command:
 
 If you need to sign out of your Documatic account
 on VSCode,
-press the `trash` icon
+press the `exit` icon
 at the top of the Documatic panel,
 or alternatively by running the command:
 
