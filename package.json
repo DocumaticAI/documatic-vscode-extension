@@ -1,0 +1,181 @@
+{
+  "name": "documatic",
+  "displayName": "Documatic",
+  "description": "Navigate through your large codebases with Documatic codesearch.",
+  "version": "0.2.2",
+  "publisher": "Documatic",
+  "icon": "resources/icons/symbol.png",
+  "homepage": "https://github.com/DocumaticAI/documatic-vscode-extension/blob/main/README.md",
+  "bugs": {
+    "url": "https://github.com/DocumaticAI/documatic-vscode-extension/issues",
+    "email": "shane@documatic.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DocumaticAI/documatic-vscode-extension.git"
+  },
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:documatic.refreshDocumaticInfoFromStore",
+    "onCommand:documatic.showSearchBox",
+    "onCommand:documatic.helloWorld",
+    "onCommand:documatic.login",
+    "onCommand:documatic.clear",
+    "onUri",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "documatic.helloWorld",
+        "title": "Hello World",
+        "category": "Documatic"
+      },
+      {
+        "command": "documatic.login",
+        "title": "Login",
+        "category": "Documatic"
+      },
+      {
+        "command": "documatic.refreshDocumaticInfoFromStore",
+        "title": "Refresh",
+        "category": "Documatic",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "documatic.showSearchBox",
+        "title": "Search",
+        "category": "Documatic",
+        "icon": "$(search-view-icon)"
+      },
+      {
+        "command": "documatic.clear",
+        "title": "Sign Out",
+        "category": "Documatic",
+        "icon": "$(sign-out)"
+      }
+
+    ],
+    "keybindings": [
+      {
+        "command": "documatic.showSearchBox",
+        "key": "ctrl+k",
+        "win": "ctrl+k",
+        "mac": "cmd+k"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "documatic",
+          "title": "Documatic",
+          "icon": "resources/icons/symbol.png"
+        }
+      ]
+    },
+    "views": {
+      "documatic": [
+        {
+          "id": "documatic:login",
+          "when": "!documatic.isLoggedIn",
+          "name": "Login"
+        },
+        {
+          "id": "documatic:home",
+          "when": "documatic.isLoggedIn",
+          "name": "Projects"
+        },
+        {
+          "id": "documatic:home_organisations",
+          "when": "documatic.isLoggedIn",
+          "name": "Organisations"
+        },
+        {
+          "id": "documatic:home_profile",
+          "when": "documatic.isLoggedIn",
+          "name": "Profile"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "documatic:login",
+        "contents": "You have not yet signed in with Documatic\n[Sign in](command:documatic.login)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "documatic.refreshDocumaticInfoFromStore",
+          "when": "documatic.isLoggedIn && view =~ /^documatic/",
+          "group": "navigation"
+        },
+        {
+          "command": "documatic.showSearchBox",
+          "when": "documatic.isLoggedIn && view =~ /^documatic/",
+          "group": "navigation"
+        },
+        {
+          "command": "documatic.clear",
+          "when": "documatic.isLoggedIn && view =~ /^documatic/",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Documatic",
+      "properties": {
+        "documatic.platformURL": {
+          "type": "string",
+          "default": "https://app.documatic.com",
+          "description": "Platform URL for your documatic instance. Do not change this unless the Documatic team asks you of it.\nDefault Value: https://app.documatic.com"
+        },
+        "documatic.apiURL": {
+          "type": "string",
+          "default": "https://api.documatic.com",
+          "description": "API URL for your documatic instance. Do not change this unless the Documatic team asks you of it.\nDefault Value: https://api.documatic.com"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/uuid": "^8.3.4",
+    "@types/vscode": "^1.71.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/codicons": "*",
+    "@vscode/test-electron": "^2.1.5",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "highlight.js": "^11.6.0",
+    "uuid": "^9.0.0"
+  }
+}
