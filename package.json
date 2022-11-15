@@ -2,7 +2,7 @@
   "name": "documatic",
   "displayName": "Documatic",
   "description": "Navigate through your large codebases with Documatic codesearch.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "Documatic",
   "icon": "resources/icons/symbol.png",
   "homepage": "https://github.com/DocumaticAI/documatic-vscode/blob/main/README.md",
@@ -100,6 +100,11 @@
           "id": "documatic:home_profile",
           "when": "documatic.isLoggedIn",
           "name": "Profile"
+        },
+        {
+          "id": "documatic:logout",
+          "when": "documatic.isLoggedIn",
+          "name": "Logout"
         }
       ]
     },
@@ -107,6 +112,10 @@
       {
         "view": "documatic:login",
         "contents": "You have not yet signed in with Documatic\n[Sign in](command:documatic.login)"
+      },
+      {
+        "view": "documatic:logout",
+        "contents": "Click below to logout\n[Sign out](command:documatic.clear)"
       }
     ],
     "menus": {
