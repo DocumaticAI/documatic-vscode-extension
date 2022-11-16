@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## 0.2.3 - 16-11-2022
+
+### Added
+
+* A very clear "Sign out" button on the Documatic tab
+
 ## 0.2.2 - 03-11-2022
 
 ### Changed
