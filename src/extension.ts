@@ -178,7 +178,7 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	}
 
 
-	vscode.window.showInformationMessage(`Searching \`${searchInputValue}\` on \`${selectedProject.label.split(" ").slice(1).join(" ")}\``);
+	vscode.window.showInformationMessage(`Searching "${searchInputValue}" on "${selectedProject.label.split(" ").slice(1).join(" ")}"`);
 	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue, projectId: selectedProject.projectID}})).data;
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	if (searchResults.length === 0) {
