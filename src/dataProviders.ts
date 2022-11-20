@@ -150,7 +150,7 @@ export class ProfileTreeDataProvider implements TreeDataProvider<vscode.TreeItem
   }
 
   getChildren(element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> {
-    if (!this.profile) {return []};
+    if (!this.profile) {return [];};
     return [
       { label: this.profile.firstName, description: "First name"},
       { label: this.profile.lastName, description: "Last name"},
@@ -162,6 +162,17 @@ export class ProfileTreeDataProvider implements TreeDataProvider<vscode.TreeItem
   getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
     return element;
   }
+  private _onDidChangeTreeData: EventEmitter<
+    Project | undefined | null | void
+  > = new EventEmitter<Project | undefined | null | void>();
+  readonly onDidChangeTreeData: Event<Project | undefined | null | void> =
+    this._onDidChangeTreeData.event;
+
+  async refresh(){
+    await this.getInitialData();
+    this._onDidChangeTreeData.fire();
+  }
+
 }
 
 export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
@@ -197,6 +208,7 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
         // change this to folder list later
       );
     } else {
+      console.log("in getChildren for projects", this.projects);
       if (this.projects) {
         return Promise.resolve(this.getProjectsListFromProjects(this.projects));
       }
@@ -210,7 +222,8 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
   readonly onDidChangeTreeData: Event<Project | undefined | null | void> =
     this._onDidChangeTreeData.event;
 
-  refresh(): void {
+  async refresh(){
+    await this.getInitialData();
     this._onDidChangeTreeData.fire();
   }
 
@@ -342,7 +355,8 @@ export class OrganisationsTreeDataProvider
   readonly onDidChangeTreeData: Event<Project | undefined | null | void> =
     this._onDidChangeTreeData.event;
 
-  refresh(): void {
+  async refresh(){
+    await this.getInitialData();
     this._onDidChangeTreeData.fire();
   }
 
