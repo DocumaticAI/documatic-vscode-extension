@@ -96,7 +96,7 @@ let getDocumaticData = async () => {
 	
 	const token = await globalContext.secrets.get("token");
 	if (!token) {
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+		showLoginPopup();
 		return;
 	}
 	globalAxios = axios.create({
@@ -136,13 +136,21 @@ let getDocumaticData = async () => {
 		
 	} catch (error) {
 		console.log(error);
-		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again");
 		globalContext.secrets.delete("token");
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+		showLoginPopup();
 	}
 
 });
 	
+};
+
+let showLoginPopup = () => {
+	vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+	vscode.window.showErrorMessage("Unable to fetch data", ...['Login'])
+		.then(selection => {
+			if (selection === 'Login') 
+				{vscode.commands.executeCommand('documatic.login');}
+		});
 };
 
 let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
