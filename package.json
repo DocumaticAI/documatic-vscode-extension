@@ -2,7 +2,7 @@
   "name": "documatic",
   "displayName": "Documatic",
   "description": "Navigate through your large codebases with Documatic codesearch.",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "publisher": "Documatic",
   "icon": "resources/icons/symbol.png",
   "homepage": "https://github.com/DocumaticAI/documatic-vscode/blob/main/README.md",
