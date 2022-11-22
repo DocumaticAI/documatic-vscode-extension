@@ -208,7 +208,6 @@ export class ProjectsTreeDataProvider implements TreeDataProvider<Project> {
         // change this to folder list later
       );
     } else {
-      console.log("in getChildren for projects", this.projects);
       if (this.projects) {
         return Promise.resolve(this.getProjectsListFromProjects(this.projects));
       }
