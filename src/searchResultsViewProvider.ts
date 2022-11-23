@@ -22,7 +22,7 @@ export class SearchResultsViewProvider implements vscode.WebviewViewProvider {
 export class ResultsOverviewPanel extends WebviewBase {
     public static ID: string = "documatic.searchResults";
     
-    protected readonly _viewType: string = 'Search results on blah blah';
+    protected readonly _viewType: string = 'Search results for blah blah';
     public currentPanel?: ResultsOverviewPanel;
 	protected _panel: vscode.WebviewPanel;
 	protected _scrollPosition = { x: 0, y: 0 };
@@ -42,7 +42,7 @@ export class ResultsOverviewPanel extends WebviewBase {
         this.extensionUri = _extensionUri;
         this.column = column;
         this.searchTerm = title;
-        this.title = `Search Results on ${title}`;
+        this.title = `Search Results for "${title}"`;
 
 		// Create and show a new webview panel
 		this._panel = vscode.window.createWebviewPanel(this._viewType, this.title, this.column, {
@@ -105,7 +105,7 @@ export class ResultsOverviewPanel extends WebviewBase {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Search ${htmlEncode(this.searchTerm)} on Documatic</title>
+                <title>Search "${htmlEncode(this.searchTerm)}" on Documatic</title>
 
 				<link href="${styleUri}" rel="stylesheet" />
 				<link href="${codiconsUri}" rel="stylesheet" />
@@ -115,7 +115,7 @@ export class ResultsOverviewPanel extends WebviewBase {
                 </head>
                 <body class="${jsEscape(process.platform)}">
                 
-                <br/><h3>Search ${htmlEncode(this.searchTerm)} on Documatic</h3><hr />`;
+                <br/><h3>Search "${htmlEncode(this.searchTerm)}" on Documatic</h3><hr />`;
 
                 const contentHTML = searchResults.length > 0 ? searchResults.map((i: any) => this.getHTMLcontentForSearchResult(i)).join("<hr />") : `<blockquote>${zeroResultsMsg.replaceAll(". ", ".<br />")}</blockquote>`;
         const footerHTML = "</body></html>";

@@ -13,19 +13,26 @@ export let globalAxios: AxiosInstance;
 const apiURL: string = vscode.workspace.getConfiguration("documatic").get("apiURL") ?? "https://api.documatic.com/";
 const platformURL: string = vscode.workspace.getConfiguration("documatic").get("platformURL") ?? "https://app.documatic.com/";
 export const zeroResultsMsg = "0 results received for your search. This may be because your codebase has not finished indexing. Please wait a few minutes and try again. If this persists, please contact info@documatic.com";
+
+export let orgDataProvider: any;
+export let projectDataProvider: any;
+export let profileDataProvider: any;
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	
 	globalContext = context;
+
+	orgDataProvider = new OrganisationsTreeDataProvider();
+	projectDataProvider = new ProjectsTreeDataProvider();
+	profileDataProvider = new ProfileTreeDataProvider();
+
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when the extension is activated
 	console.log('Congratulations, the extension "documatic" is now active!');
 
 
-	const orgDataProvider = new OrganisationsTreeDataProvider();
-	const projectDataProvider = new ProjectsTreeDataProvider();
-	const profileDataProvider = new ProfileTreeDataProvider();
 	vscode.window.registerTreeDataProvider('documatic:home', projectDataProvider);
 	vscode.window.registerTreeDataProvider('documatic:home_organisations', orgDataProvider);
 	vscode.window.registerTreeDataProvider('documatic:home_profile', profileDataProvider);
@@ -48,8 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand('documatic.refreshDocumaticInfoFromStore', async () => {
 			await getDocumaticData();
-			projectDataProvider.refresh();
-			orgDataProvider.refresh();
+			refreshProviders();
 		}),
 		vscode.window.registerUriHandler(loginUriHandler),
 		vscode.commands.registerCommand('documatic.showSearchBox', async () => {
@@ -96,7 +102,7 @@ let getDocumaticData = async () => {
 	
 	const token = await globalContext.secrets.get("token");
 	if (!token) {
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+		showLoginPopup();
 		return;
 	}
 	globalAxios = axios.create({
@@ -133,16 +139,31 @@ let getDocumaticData = async () => {
 		await globalContext.globalState.update("objects_lists", {});
 		// await globalContext.globalState.update("object_summaries", objectSummaries);
 		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', true);
+		refreshProviders();
 		
 	} catch (error) {
 		console.log(error);
-		vscode.window.showErrorMessage("Error occured while fetching data from Documatic. Please login again");
 		globalContext.secrets.delete("token");
-		vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+		showLoginPopup();
 	}
 
 });
 	
+};
+
+let showLoginPopup = () => {
+	vscode.commands.executeCommand('setContext', 'documatic.isLoggedIn', false);
+	vscode.window.showErrorMessage("Unable to fetch data", ...['Login'])
+		.then(selection => {
+			if (selection === 'Login') 
+				{vscode.commands.executeCommand('documatic.login');}
+		});
+};
+
+const refreshProviders = () => {
+	projectDataProvider.refresh();
+	orgDataProvider.refresh();
+	profileDataProvider.refresh();
 };
 
 let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
@@ -178,7 +199,7 @@ let searchDocumaticHandler = async (progress: vscode.Progress<{}>) => {
 	}
 
 
-	vscode.window.showInformationMessage(`Searching \`${searchInputValue}\` on \`${selectedProject.label.split(" ").slice(1).join(" ")}\``);
+	vscode.window.showInformationMessage(`Searching "${searchInputValue}" on "${selectedProject.label.split(" ").slice(1).join(" ")}"`);
 	const searchResults = (await globalAxios.get(`/codesearch/function`, {params: {q: searchInputValue, projectId: selectedProject.projectID}})).data;
 	vscode.window.showInformationMessage(`Got ${searchResults.length} results`);
 	if (searchResults.length === 0) {
