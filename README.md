@@ -152,7 +152,6 @@ If you would like to open a pull request,
 please refer to the
 [contributing guide](./CONTRIBUTING.md)
 
-
 ## Changelog
 
 For full release notes,
@@ -173,7 +172,6 @@ Comes with codesearch and code snippet analysis.
 Apache 2.0.
 Read [the license]
 for full terms.
-
 
 ## About Documatic
 

@@ -1,5 +1,7 @@
 *.vsix
 .env
+out
+.vscode-test/
 
 # Logs
 logs
